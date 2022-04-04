@@ -14,9 +14,9 @@ INC_FILES = $(wildcard src/*.h)
 
 
 #
-# Any libraries we might need.
+# Any libraries we might n/home/muleeed.
 #
-LIBRARYS =  -lpcap
+LIBRARYS =
 
 
 ${TARGET}: ${OBJ_FILES}
