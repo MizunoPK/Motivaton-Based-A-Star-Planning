@@ -9,7 +9,7 @@ LDFLAGS =
 
 
 TARGET = dynamic-pathing
-OBJ_FILES = main.o
+OBJ_FILES = main.cpp
 INC_FILES = $(wildcard src/*.h)
 
 

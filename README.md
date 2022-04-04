@@ -1,1 +1,47 @@
 # Robot-Planning-FP
+Task Structure / TimeLine:
+1) Implement Basic A* Algorithm && Visualization && Check Outputs
+2) Integrate A* Algorithm with our Structures
+3) Add Secondary Goal Functionality
+
+Check Outputs:
+- Total Runtime
+- Number of Goals Reached
+- Number of Nodes Traversed
+
+Input File(s) Structure:
+1) NodeDefinition:
+   1) Node | [internal state] | [change value]
+2) AdjaceniesDefinition:
+   1) Node | [Adjacent Nodes]
+3) GoalsDefinition:
+   1) Primary Goal
+   2) [Secondary Goal(s)]
+
+#Classes:
+##Simulation
+Primary Goal
+1) Data Structures:
+- List of Secondary Goals
+2) Integrated Classes:
+- State Space
+- Agent
+3) Methods:
+- runSearch()
+- outputPath()
+##StateSpace
+1) Data Structures:
+- HashTable: AdjacencyList
+2) Methods:
+- lookup(Node)
+##Node
+Node Name
+1) Data Structures:
+- List of Internal State(s)
+- List of Change Values
+##Agent
+1) Data Structures:
+- List of Internal State(s)
+2) Methods:
+- getState()
+- setState()
