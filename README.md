@@ -19,9 +19,11 @@ Input File(s) Structure:
    1) Node | [internal state] | [change value]
 2) AdjaceniesDefinition:
    1) Node | [Adjacent Nodes]
-3) GoalsDefinition:
-   1) Primary Goal
-   2) [Secondary Goal(s)]
+3) AgentDefinition:
+   1) [Starting Internal State]
+   2) Starting Node
+   3) Primary Goal
+   4) [Secondary Goal(s)]
 
 #Classes:
 ##Simulation

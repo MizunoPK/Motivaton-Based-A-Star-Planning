@@ -27,3 +27,6 @@ bin/%.o : src/%.cpp ${INC_FILES}
 
 clean:
 	rm -f core ${TARGET} ${OBJ_FILES}
+
+basic1:
+	./dynamic-pathing inputs/basic1/basic1-nodes.txt inputs/basic1/basic1-adjacencies.txt inputs/basic1/basic1-agent.txt
