@@ -1,4 +1,9 @@
 # Robot-Planning-FP
+Individual Tasks:
+Emil - Visualization of a Graph 
+Matt - Generating Input Files
+Kai - Bare bones A*
+
 Task Structure / TimeLine:
 1) Implement Basic A* Algorithm && Visualization && Check Outputs
 2) Integrate A* Algorithm with our Structures
