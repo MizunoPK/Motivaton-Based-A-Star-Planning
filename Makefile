@@ -20,6 +20,7 @@ LIBRARYS =
 
 
 ${TARGET}: ${OBJ_FILES}
+	mkdir -p bin
 	${LD} ${LDFLAGS} ${OBJ_FILES} -o $@ ${LIBRARYS}
 
 bin/%.o : src/%.cpp ${INC_FILES}
