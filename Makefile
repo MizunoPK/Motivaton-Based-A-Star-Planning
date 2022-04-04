@@ -9,7 +9,7 @@ LDFLAGS =
 
 
 TARGET = dynamic-pathing
-OBJ_FILES = main.o
+OBJ_FILES = bin/main.o bin/Simulation.o bin/StateSpace.o bin/Node.o bin/Agent.o
 INC_FILES = $(wildcard src/*.h)
 
 
@@ -22,7 +22,7 @@ LIBRARYS =
 ${TARGET}: ${OBJ_FILES}
 	${LD} ${LDFLAGS} ${OBJ_FILES} -o $@ ${LIBRARYS}
 
-%.o : src/%.cpp ${INC_FILES}
+bin/%.o : src/%.cpp ${INC_FILES}
 	${CXX} -c ${CXXFLAGS} -o $@ $<
 
 clean:
