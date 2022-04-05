@@ -16,7 +16,7 @@ void Simulation::initializeStateSpace(std::string nodeFile, std::string adjacenc
         // Make the map of nodes 
         std::map<std::string, Node*> nodeMap;
         std::string fileLine;
-        while (fileLine) {
+        while (nodeFileStream) {
             std::getline(nodeFileStream, fileLine);
             std::cout << fileLine << std::endl;
         }
