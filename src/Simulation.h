@@ -12,7 +12,6 @@ private:
     // VARIABLES
     StateSpace* ss;
     Agent* agent;
-    Node* primaryGoal; // A pointer to the Primary Goal node (Original is created in StateSpace)
 
     // Function: initializeStateSpace
     // Input: 

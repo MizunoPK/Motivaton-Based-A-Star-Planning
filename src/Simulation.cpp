@@ -7,15 +7,17 @@
 Simulation::Simulation(std::string nodeFile, std::string adjacenciesFile, std::string agentFile) {
     initializeStateSpace(nodeFile, adjacenciesFile);
     initializeAgent(agentFile);
+
+    // Debugging Prints
+    this->ss->printNodes();
+    this->ss->printAdjacencies();
+    this->agent->printAgentInfo();
 }
 
 void Simulation::initializeStateSpace(std::string nodeFile, std::string adjacenciesFile) {
     this->ss = new StateSpace();
     this->initStateSpaceNodes(nodeFile);
     this->initStateSpaceAdjs(adjacenciesFile);
-
-    this->ss->printNodes();
-    this->ss->printAdjacencies();
 }
 
 void Simulation::initStateSpaceNodes(std::string nodeFile) {
@@ -33,24 +35,15 @@ void Simulation::initStateSpaceNodes(std::string nodeFile) {
             std::string nodeName = lineVector.at(0);
             
             // Get node internal state
-            std::vector<std::string> stateStrings = split(lineVector.at(1), ',');
-            std::vector<int> state;
-            for (int i=0; i < stateStrings.size(); i++) {
-                int num = stoi(stateStrings.at(i));
-                state.push_back(num);
-            }
+            std::vector<int> state = splitStateList(lineVector.at(1));
 
             // Get node agent-modifiers
-            std::vector<std::string> modifierStrings = split(lineVector.at(2), ',');
-            std::vector<int> modifiers;
-            for (int i=0; i < modifierStrings.size(); i++) {
-                int num = std::stoi(modifierStrings.at(i));
-                modifiers.push_back(num);
-            }
+            std::vector<int> modifiers = splitStateList(lineVector.at(2));
 
             nodeMap[lineVector.at(0)] = new Node(nodeName, state, modifiers);
         }
         ss->initNodes(nodeMap);
+        nodeFileStream.close();
     }
     else {
         std::cout << "Error: Could not open Node File \"" << nodeFile << "\"" << std::endl;
@@ -91,6 +84,7 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
             adjMap[baseNode] = adjacencyList;
         }
         ss->initAdjacencies(adjMap);
+        adjFileStream.close();
     }
     else {
         std::cout << "Error: Could not open Adjacencies File \"" << adjacenciesFile << "\"" << std::endl;
@@ -99,7 +93,42 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
 }
 
 void Simulation::initializeAgent(std::string agentFile) {
+    // Process the Agent File
+    std::fstream agentFileStream(agentFile);
+    if (agentFileStream.is_open()) {
+        std::string fileLine;
+        // The agent file should always have 4 lines of relevent data
+        // First line is actor state:
+        std::getline(agentFileStream, fileLine);
+        std::vector<int> actorState = splitStateList(fileLine);
 
+        // Second Line is Starting Node:
+        std::getline(agentFileStream, fileLine);
+        Node* startingNode = this->ss->getNode(fileLine);
+
+        // Third Line is Primary Goal:
+        std::getline(agentFileStream, fileLine);
+        Node* primaryGoal = this->ss->getNode(fileLine);
+
+        // Fourth Line is Secondary Goals:
+        std::getline(agentFileStream, fileLine);
+        std::vector<Node*> secondaryGoals;
+        if (fileLine != "NULL") {
+            std::vector<std::string> nodeStrs = split(fileLine, ',');
+            for ( int i=0; i < nodeStrs.size(); i++ ) {
+                Node* goal = this->ss->getNode(nodeStrs.at(i));
+                secondaryGoals.push_back(goal);
+            }
+        }
+        
+        // Make the agent
+        agent = new Agent(actorState, startingNode, primaryGoal, secondaryGoals);
+        agentFileStream.close();
+    }
+    else {
+        std::cout << "Error: Could not open Agent File \"" << agentFile << "\"" << std::endl;
+        exit(-1);
+    }
 }
 
 void Simulation::runSearch() {}

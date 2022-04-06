@@ -15,4 +15,13 @@ void split(const std::string &s, char delim, Out result);
 // Description: Helper function used to split a string 
 std::vector<std::string> split(const std::string &s, char delim);
 
+// Function: splitStateList
+// Input:
+//      listStr - The list being split, in string form. Should look like "x,x,x,...,x"
+// Output: vector<int> - a vector made up of the state ints
+std::vector<int> splitStateList(std::string listStr);
+
+// Debugging Functions:
+void printStateVector(std::vector<int> states);
+
 #endif //UTIL_H

@@ -1,4 +1,5 @@
 #include "StateSpace.h"
+#include "util.h"
 #include <iostream>
 
 void StateSpace::initNodes(std::map<std::string, Node*> nodes) {
@@ -22,9 +23,13 @@ void StateSpace::printNodes() {
     std::cout << "State Space Nodes:" << std::endl;
     for (auto const& [key, val] : this->nodes) {
         std::cout << key
-                << ':'
-                << val
-                << std::endl;
+                << " (" << val << ") : ";
+
+        printStateVector(val->getState());
+        std::cout << " - ";
+        printStateVector(val->getModifiers());
+
+        std::cout << std::endl;
     }
 }
 void StateSpace::printAdjacencies() {
@@ -33,7 +38,10 @@ void StateSpace::printAdjacencies() {
         std::cout << key->getName() << ":[";
 
         for ( int i=0; i < val->size(); i++ ) {
-            std::cout << "(" << val->at(i)->node << "-" << val->at(i)->weight << "),";
+            std::cout << "(" << val->at(i)->node->getName() << "-" << val->at(i)->weight << ")";
+            if ( i < val->size() - 1 ) {
+                std::cout << ",";
+            }
         }
 
         std::cout << "]" << std::endl;
