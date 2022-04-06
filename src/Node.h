@@ -2,6 +2,7 @@
 #define NODE_H
 
 #include <vector>
+#include <string>
 
 class Node {
 private:
@@ -13,6 +14,11 @@ public:
     // Function: Constructor 
     // Description: Initializes the information associated with this node 
     Node(std::string name, std::vector<int> state, std::vector<int> modifiers);
+
+    // Getters
+    std::string getName();
+    std::vector<int> getState();
+    std::vector<int> getModifiers();
 };
 
 

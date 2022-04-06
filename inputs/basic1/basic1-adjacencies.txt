@@ -1,4 +1,4 @@
-A [B 1,D 3]
-B [C 2,D 3]
-C []
-D [C 2]
+A B-1,D-3
+B C-2,D-3
+C NULL
+D C-2

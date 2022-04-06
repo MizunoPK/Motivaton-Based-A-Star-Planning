@@ -9,7 +9,7 @@ LDFLAGS =
 
 
 TARGET = dynamic-pathing
-OBJ_FILES = bin/main.o bin/Simulation.o bin/StateSpace.o bin/Node.o bin/Agent.o
+OBJ_FILES = bin/main.o bin/Simulation.o bin/StateSpace.o bin/Node.o bin/Agent.o bin/util.o
 INC_FILES = $(wildcard src/*.h)
 
 

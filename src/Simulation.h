@@ -2,6 +2,7 @@
 #define SIMULATION_H
 
 #include <iostream>
+#include <string>
 #include "StateSpace.h"
 #include "Node.h"
 #include "Agent.h"
@@ -20,11 +21,24 @@ private:
     // Description: Initializes the local StateSpace object with the information from the input files
     void initializeStateSpace(std::string nodeFile, std::string adjacenciesFile);
 
+    // Function: initStateSpaceNodes
+    // Input: 
+    //      nodesFile - The path to the file outlining the nodes that are being pathed
+    // Description: Initializes the nodes for the StateSpace object with the information from the input files
+    void initStateSpaceNodes(std::string nodeFile);
+
+    // Function: initStateSpaceAdjs
+    // Input: 
+    //      adjacenciesFile - The path to the file outline the nodes' adjacency list
+    // Description: Initializes the adjacency lists for the StateSpace object with the information from the input files
+    void initStateSpaceAdjs(std::string adjacenciesFile);
+
     // Function: initializeAgent
     // Input: 
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     // Description: Initializes everything related to the agent
     void initializeAgent(std::string agentFile);
+
     
 public:
     // Function: Constructor
