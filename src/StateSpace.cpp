@@ -2,19 +2,19 @@
 #include "util.h"
 #include <iostream>
 
-void StateSpace::initNodes(std::map<std::string, Node*> nodes) {
+void StateSpace::initNodes(std::map<std::string, std::shared_ptr<Node>> nodes) {
     this->nodes = nodes;
 }
 
-void StateSpace::initAdjacencies(std::map<Node*, std::vector<Adjacency*>*> adjacencyMap) {
+void StateSpace::initAdjacencies(std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>*> adjacencyMap) {
     this->adjacencyMap = adjacencyMap;
 }
  
-Node* StateSpace::getNode(std::string nodeName) {
+std::shared_ptr<Node> StateSpace::getNode(std::string nodeName) {
     return this->nodes[nodeName];
 }
 
-std::vector<Adjacency*>* StateSpace::getAdjacencyList(Node* node) {
+std::vector<std::shared_ptr<Adjacency>>* StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
     return this->adjacencyMap[node];
 }
 

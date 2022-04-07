@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 #include "StateSpace.h"
 #include "Node.h"
 #include "Agent.h"
@@ -12,15 +13,21 @@ class Simulation {
     // Used for a linked list of nodes to define a path
     // Associated a Node in a path with an f_cost, and the previous node in the path
     struct SearchNode {
-        Node* node;
+        std::shared_ptr<Node> node;
         int f_cost;
-        SearchNode* prevNode;
+        std::weak_ptr<SearchNode> prevNode;
+
+        SearchNode(std::shared_ptr<Node> n, int f, std::weak_ptr<SearchNode> p) {
+            node = n;
+            f_cost = f;
+            prevNode = p;
+        }
     };
 
 private:
     // VARIABLES
-    StateSpace* ss;
-    Agent* agent;
+    std::shared_ptr<StateSpace> ss;
+    std::shared_ptr<Agent> agent;
 
     // Function: initializeStateSpace
     // Input: 

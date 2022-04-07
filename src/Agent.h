@@ -3,24 +3,25 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "Node.h"
 
 class Agent {
 private:
     std::vector<int> state; // The internal state of the agent
-    Node* startingNode;
-    Node* primaryGoal;
-    std::vector<Node*> secondaryGoals;
+    std::shared_ptr<Node> startingNode;
+    std::shared_ptr<Node> primaryGoal;
+    std::vector<std::shared_ptr<Node>> secondaryGoals;
     
 public:
     // Constructor
-    Agent(std::vector<int> state, Node* startingNode, Node* primaryGoal, std::vector<Node*> secondaryGoals);
+    Agent(std::vector<int> state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>> secondaryGoals);
 
     // Getters
     std::vector<int> getState();
-    Node* getStartingNode();
-    Node* getPrimaryGoal();
-    std::vector<Node*> getSecondaryGoals();
+    std::shared_ptr<Node> getStartingNode();
+    std::shared_ptr<Node> getPrimaryGoal();
+    std::vector<std::shared_ptr<Node>> getSecondaryGoals();
 
     // Debugging Functions:
     void printAgentInfo();

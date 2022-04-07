@@ -16,7 +16,7 @@ Simulation::Simulation(std::string nodeFile, std::string adjacenciesFile, std::s
 }
 
 void Simulation::initializeStateSpace(std::string nodeFile, std::string adjacenciesFile) {
-    this->ss = new StateSpace();
+    this->ss = std::make_shared<StateSpace>();
     this->initStateSpaceNodes(nodeFile);
     this->initStateSpaceAdjs(adjacenciesFile);
 }
@@ -26,7 +26,7 @@ void Simulation::initStateSpaceNodes(std::string nodeFile) {
     std::fstream nodeFileStream(nodeFile);
     if (nodeFileStream.is_open()) {
         // Make the map of nodes 
-        std::map<std::string, Node*> nodeMap;
+        std::map<std::string, std::shared_ptr<Node>> nodeMap;
         std::string fileLine;
         while (nodeFileStream) {
             std::getline(nodeFileStream, fileLine);
@@ -41,7 +41,7 @@ void Simulation::initStateSpaceNodes(std::string nodeFile) {
             // Get node agent-modifiers
             std::vector<int> modifiers = splitStateList(lineVector.at(2));
 
-            nodeMap[lineVector.at(0)] = new Node(nodeName, state, modifiers);
+            nodeMap[lineVector.at(0)] = std::make_shared<Node>(nodeName, state, modifiers);
         }
         ss->initNodes(nodeMap);
         nodeFileStream.close();
@@ -57,25 +57,25 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
     std::fstream adjFileStream(adjacenciesFile);
     if (adjFileStream.is_open()) {
         // Make the map of nodes 
-        std::map<Node*, std::vector<Adjacency*>*> adjMap;
+        std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>*> adjMap;
         std::string fileLine;
         while (adjFileStream) {
             std::getline(adjFileStream, fileLine);
             std::vector<std::string> lineVector = split(fileLine, ' ');
 
             // Get the node this line is defining the adjacency list for
-            Node* baseNode = this->ss->getNode(lineVector.at(0));
+            std::shared_ptr<Node> baseNode = this->ss->getNode(lineVector.at(0));
 
             // Parse the adjacency list
-            std::vector<Adjacency*>* adjacencyList = new std::vector<Adjacency*>;
+            std::vector<std::shared_ptr<Adjacency>>* adjacencyList = new std::vector<std::shared_ptr<Adjacency>>;
             if ( lineVector.at(1) != "NULL" ) {
                 std::vector<std::string> adjString = split(lineVector.at(1), ',');
                 for ( int i=0; i < adjString.size(); i++ ) {
                     std::vector<std::string> adjacency = split(adjString.at(i), '-');
 
-                    Node* adjacentNode = this->ss->getNode(adjacency.at(0));
+                    std::shared_ptr<Node> adjacentNode = this->ss->getNode(adjacency.at(0));
                     int weight = std::stoi(adjacency.at(1));
-                    Adjacency *adjacencyTuple = new Adjacency {adjacentNode, weight};
+                    std::shared_ptr<Adjacency> adjacencyTuple = std::make_shared<Adjacency>(adjacentNode, weight);
 
                     adjacencyList->push_back(adjacencyTuple);
                 }
@@ -105,25 +105,25 @@ void Simulation::initializeAgent(std::string agentFile) {
 
         // Second Line is Starting Node:
         std::getline(agentFileStream, fileLine);
-        Node* startingNode = this->ss->getNode(fileLine);
+        std::shared_ptr<Node> startingNode = this->ss->getNode(fileLine);
 
         // Third Line is Primary Goal:
         std::getline(agentFileStream, fileLine);
-        Node* primaryGoal = this->ss->getNode(fileLine);
+        std::shared_ptr<Node> primaryGoal = this->ss->getNode(fileLine);
 
         // Fourth Line is Secondary Goals:
         std::getline(agentFileStream, fileLine);
-        std::vector<Node*> secondaryGoals;
+        std::vector<std::shared_ptr<Node>> secondaryGoals;
         if (fileLine != "NULL") {
             std::vector<std::string> nodeStrs = split(fileLine, ',');
             for ( int i=0; i < nodeStrs.size(); i++ ) {
-                Node* goal = this->ss->getNode(nodeStrs.at(i));
+                std::shared_ptr<Node> goal = this->ss->getNode(nodeStrs.at(i));
                 secondaryGoals.push_back(goal);
             }
         }
         
         // Make the agent
-        agent = new Agent(actorState, startingNode, primaryGoal, secondaryGoals);
+        agent = std::make_shared<Agent>(actorState, startingNode, primaryGoal, secondaryGoals);
         agentFileStream.close();
     }
     else {
@@ -134,15 +134,16 @@ void Simulation::initializeAgent(std::string agentFile) {
 
 void Simulation::runSearch() {
     // define OPEN - priority queue of nodes ready to be evaluated
-    std::vector<SearchNode*> openQueue;
+    std::vector<std::shared_ptr<SearchNode>> openQueue;
     // define CLOSED - a set of nodes already evaluated
-    std::unordered_set<SearchNode*> closedSet;
+    std::unordered_set<std::shared_ptr<SearchNode>> closedSet;
     // add the start node to OPEN
-    openQueue.push_back(new SearchNode {agent->getStartingNode(), 0, NULL});
+    std::weak_ptr<SearchNode> w;
+    openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, w));
 
     // loop
     while (true) {
-        SearchNode* current = openQueue.back(); // current = node in OPEN with the lowest f_cost
+        std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
         openQueue.pop_back(); // remove current from OPEN
         closedSet.insert(current); // add current to CLOSED
 
@@ -152,9 +153,9 @@ void Simulation::runSearch() {
         }
         
         // foreach neighbor of the current node
-        std::vector<Adjacency*>* neighbors = this->ss->getAdjacencyList(current->node);
+        std::vector<std::shared_ptr<Adjacency>>* neighbors = this->ss->getAdjacencyList(current->node);
         for ( int i=0; i < neighbors->size(); i++ ) {
-            Adjacency* neighbor = neighbors->at(i);
+            std::shared_ptr<Adjacency> neighbor = neighbors->at(i);
             // if neighbor is in CLOSED
                 // skip to the next neighbor
             // if new path to neighbor is shorter OR neighbor is not in OPEN O(n)
