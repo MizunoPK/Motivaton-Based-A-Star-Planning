@@ -1,7 +1,7 @@
 #ifndef STATE_SPACE_H
 #define STATE_SPACE_H
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include "Node.h"
 #include <memory>
@@ -22,19 +22,19 @@ class StateSpace {
 private:
     // Map: Nodes
     // Node Name -> Node Pointer 
-    std::map<std::string, std::shared_ptr<Node>> nodes;
+    std::unordered_map<std::string, std::shared_ptr<Node>> nodes;
 
     // Map: adjacencyMap
     // std::shared_ptr<Node> -> Vector of Tuples: (std::shared_ptr<Node>, Travel Weight)
-    std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap;
+    std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap;
 public:
     // Function: initNodes
     // Description: initializes the nodes map with the provided data
-    void initNodes(std::map<std::string, std::shared_ptr<Node>>);
+    void initNodes(std::unordered_map<std::string, std::shared_ptr<Node>>);
 
     // Function: initAdjacencies
     // Description: initializes the adjacencyList map with the provided data
-    void initAdjacencies(std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>>);
+    void initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>>);
     
     // Function: getNode
     // Input: nodeName - The name of the node being fetched

@@ -2,11 +2,11 @@
 #include "util.h"
 #include <iostream>
 
-void StateSpace::initNodes(std::map<std::string, std::shared_ptr<Node>> nodes) {
+void StateSpace::initNodes(std::unordered_map<std::string, std::shared_ptr<Node>> nodes) {
     this->nodes = nodes;
 }
 
-void StateSpace::initAdjacencies(std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap) {
+void StateSpace::initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap) {
     this->adjacencyMap = adjacencyMap;
 }
  

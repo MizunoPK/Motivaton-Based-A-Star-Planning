@@ -1,7 +1,7 @@
 #include "Simulation.h"
 #include "util.h"
 #include <fstream>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <unordered_set>
 
@@ -26,7 +26,7 @@ void Simulation::initStateSpaceNodes(std::string nodeFile) {
     std::fstream nodeFileStream(nodeFile);
     if (nodeFileStream.is_open()) {
         // Make the map of nodes 
-        std::map<std::string, std::shared_ptr<Node>> nodeMap;
+        std::unordered_map<std::string, std::shared_ptr<Node>> nodeMap;
         std::string fileLine;
         while (nodeFileStream) {
             std::getline(nodeFileStream, fileLine);
@@ -57,7 +57,7 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
     std::fstream adjFileStream(adjacenciesFile);
     if (adjFileStream.is_open()) {
         // Make the map of nodes 
-        std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjMap;
+        std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjMap;
         std::string fileLine;
         while (adjFileStream) {
             std::getline(adjFileStream, fileLine);
@@ -135,8 +135,12 @@ void Simulation::initializeAgent(std::string agentFile) {
 void Simulation::runSearch() {
     // define OPEN - priority queue of nodes ready to be evaluated
     std::vector<std::shared_ptr<SearchNode>> openQueue;
+
     // define CLOSED - a set of nodes already evaluated
-    std::unordered_set<std::shared_ptr<SearchNode>> closedSet;
+    //               - defined as a map associating a Node -> SearchNode ... 
+    //                  Makes it easier to find a SearchNode and ensure only one SearchNode exists per Node
+    std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>> closedMap;
+
     // add the start node to OPEN
     std::weak_ptr<SearchNode> w;
     openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, w));
@@ -145,7 +149,7 @@ void Simulation::runSearch() {
     while (true) {
         std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
         openQueue.pop_back(); // remove current from OPEN
-        closedSet.insert(current); // add current to CLOSED
+        closedMap[current->node] = current; // add current to CLOSED
 
         // if current is the target node - the path has been found
         if ( current->node == agent->getPrimaryGoal() ) {
@@ -159,7 +163,7 @@ void Simulation::runSearch() {
             // if neighbor is in CLOSED
                 // skip to the next neighbor
             // if new path to neighbor is shorter OR neighbor is not in OPEN O(n)
-                // set f_cost of neighbor
+                // set f_cost of neighbor // TODO - figure out heuristic shit
                 // set parent of neighbor to current
                 // if neighbor is not in OPEN
                     // add neighbour to OPEN
