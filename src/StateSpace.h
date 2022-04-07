@@ -37,15 +37,15 @@ public:
     void initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>>);
     
     // Function: getNode
+    // Description: Accesses the nodes map and returns the requested Node pointer 
     // Input: nodeName - The name of the node being fetched
     // Output: std::shared_ptr<Node> - A pointer to the fetched node 
-    // Description: Accesses the nodes map and returns the requested Node pointer 
     std::shared_ptr<Node> getNode(std::string nodeName);
 
     // Function: getAdjacencyList
+    // Description: Accesses the adjacencyList map and returns the requested vector
     // Input: node - The pointer of the node whose list is being fetched
     // Output: vector - The associated adjacencyList 
-    // Description: Accesses the adjacencyList map and returns the requested vector
     std::vector<std::shared_ptr<Adjacency>> getAdjacencyList(std::shared_ptr<Node> node);
 
     // Debug Tools:

@@ -8,14 +8,15 @@ template <typename Out>
 void split(const std::string &s, char delim, Out result);
 
 // Function: splitString
+// Description: Helper function used to split a string 
 // Input:
 //      str - string being split 
 //      delim - delimiter to split on 
 // Output: vector<string> - a vector made up of the substrings
-// Description: Helper function used to split a string 
 std::vector<std::string> split(const std::string &s, char delim);
 
 // Function: splitStateList
+// Description: splits a given string representing a state into a vector of integers
 // Input:
 //      listStr - The list being split, in string form. Should look like "x,x,x,...,x"
 // Output: vector<int> - a vector made up of the state ints
