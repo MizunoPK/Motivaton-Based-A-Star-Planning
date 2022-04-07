@@ -57,7 +57,7 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
     std::fstream adjFileStream(adjacenciesFile);
     if (adjFileStream.is_open()) {
         // Make the map of nodes 
-        std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>*> adjMap;
+        std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjMap;
         std::string fileLine;
         while (adjFileStream) {
             std::getline(adjFileStream, fileLine);
@@ -67,7 +67,7 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
             std::shared_ptr<Node> baseNode = this->ss->getNode(lineVector.at(0));
 
             // Parse the adjacency list
-            std::vector<std::shared_ptr<Adjacency>>* adjacencyList = new std::vector<std::shared_ptr<Adjacency>>;
+            std::vector<std::shared_ptr<Adjacency>> adjacencyList;
             if ( lineVector.at(1) != "NULL" ) {
                 std::vector<std::string> adjString = split(lineVector.at(1), ',');
                 for ( int i=0; i < adjString.size(); i++ ) {
@@ -77,7 +77,7 @@ void Simulation::initStateSpaceAdjs(std::string adjacenciesFile) {
                     int weight = std::stoi(adjacency.at(1));
                     std::shared_ptr<Adjacency> adjacencyTuple = std::make_shared<Adjacency>(adjacentNode, weight);
 
-                    adjacencyList->push_back(adjacencyTuple);
+                    adjacencyList.push_back(adjacencyTuple);
                 }
             }
 
@@ -153,9 +153,9 @@ void Simulation::runSearch() {
         }
         
         // foreach neighbor of the current node
-        std::vector<std::shared_ptr<Adjacency>>* neighbors = this->ss->getAdjacencyList(current->node);
-        for ( int i=0; i < neighbors->size(); i++ ) {
-            std::shared_ptr<Adjacency> neighbor = neighbors->at(i);
+        std::vector<std::shared_ptr<Adjacency>> neighbors = this->ss->getAdjacencyList(current->node);
+        for ( int i=0; i < neighbors.size(); i++ ) {
+            std::shared_ptr<Adjacency> neighbor = neighbors.at(i);
             // if neighbor is in CLOSED
                 // skip to the next neighbor
             // if new path to neighbor is shorter OR neighbor is not in OPEN O(n)

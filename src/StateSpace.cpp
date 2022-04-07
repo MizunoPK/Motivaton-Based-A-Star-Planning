@@ -6,7 +6,7 @@ void StateSpace::initNodes(std::map<std::string, std::shared_ptr<Node>> nodes) {
     this->nodes = nodes;
 }
 
-void StateSpace::initAdjacencies(std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>*> adjacencyMap) {
+void StateSpace::initAdjacencies(std::map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap) {
     this->adjacencyMap = adjacencyMap;
 }
  
@@ -14,7 +14,7 @@ std::shared_ptr<Node> StateSpace::getNode(std::string nodeName) {
     return this->nodes[nodeName];
 }
 
-std::vector<std::shared_ptr<Adjacency>>* StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
+std::vector<std::shared_ptr<Adjacency>> StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
     return this->adjacencyMap[node];
 }
 
@@ -37,9 +37,9 @@ void StateSpace::printAdjacencies() {
     for (auto const& [key, val] : this->adjacencyMap) {
         std::cout << key->getName() << ":[";
 
-        for ( int i=0; i < val->size(); i++ ) {
-            std::cout << "(" << val->at(i)->node->getName() << "-" << val->at(i)->weight << ")";
-            if ( i < val->size() - 1 ) {
+        for ( int i=0; i < val.size(); i++ ) {
+            std::cout << "(" << val.at(i)->node->getName() << "-" << val.at(i)->weight << ")";
+            if ( i < val.size() - 1 ) {
                 std::cout << ",";
             }
         }
