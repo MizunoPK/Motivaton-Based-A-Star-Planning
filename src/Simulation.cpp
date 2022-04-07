@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <unordered_set>
 
 Simulation::Simulation(std::string nodeFile, std::string adjacenciesFile, std::string agentFile) {
     initializeStateSpace(nodeFile, adjacenciesFile);
@@ -131,6 +132,40 @@ void Simulation::initializeAgent(std::string agentFile) {
     }
 }
 
-void Simulation::runSearch() {}
+void Simulation::runSearch() {
+    // define OPEN - priority queue of nodes ready to be evaluated
+    std::vector<SearchNode*> openQueue;
+    // define CLOSED - a set of nodes already evaluated
+    std::unordered_set<SearchNode*> closedSet;
+    // add the start node to OPEN
+    openQueue.push_back(new SearchNode {agent->getStartingNode(), 0, NULL});
+
+    // loop
+    while (true) {
+        SearchNode* current = openQueue.back(); // current = node in OPEN with the lowest f_cost
+        openQueue.pop_back(); // remove current from OPEN
+        closedSet.insert(current); // add current to CLOSED
+
+        // if current is the target node - the path has been found
+        if ( current->node == agent->getPrimaryGoal() ) {
+            break;
+        }
+        
+        // foreach neighbor of the current node
+        std::vector<Adjacency*>* neighbors = this->ss->getAdjacencyList(current->node);
+        for ( int i=0; i < neighbors->size(); i++ ) {
+            Adjacency* neighbor = neighbors->at(i);
+            // if neighbor is in CLOSED
+                // skip to the next neighbor
+            // if new path to neighbor is shorter OR neighbor is not in OPEN O(n)
+                // set f_cost of neighbor
+                // set parent of neighbor to current
+                // if neighbor is not in OPEN
+                    // add neighbour to OPEN
+        }
+        
+        // if internal state changed, or something was added to OPEN, resort OPEN
+    }
+}
 
 void Simulation::outputPath() {}

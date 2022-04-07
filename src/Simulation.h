@@ -8,6 +8,15 @@
 #include "Agent.h"
 
 class Simulation {
+    // This is a helper structure used only by the search
+    // Used for a linked list of nodes to define a path
+    // Associated a Node in a path with an f_cost, and the previous node in the path
+    struct SearchNode {
+        Node* node;
+        int f_cost;
+        SearchNode* prevNode;
+    };
+
 private:
     // VARIABLES
     StateSpace* ss;
