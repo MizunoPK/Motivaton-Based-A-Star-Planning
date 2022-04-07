@@ -145,11 +145,12 @@ void Simulation::runSearch() {
     std::weak_ptr<SearchNode> w;
     openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, w));
 
-    // loop
+    // loop through the search
     while (true) {
         std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
         openQueue.pop_back(); // remove current from OPEN
         closedMap[current->node] = current; // add current to CLOSED
+        bool sortOPEN = false; // if we make any changes that need us to re-sort open, update this flag
 
         // if current is the target node - the path has been found
         if ( current->node == agent->getPrimaryGoal() ) {
@@ -161,16 +162,76 @@ void Simulation::runSearch() {
         for ( int i=0; i < neighbors.size(); i++ ) {
             std::shared_ptr<Adjacency> neighbor = neighbors.at(i);
             // if neighbor is in CLOSED
+            if ( closedMap.find(neighbor->node) != closedMap.end() ) {
                 // skip to the next neighbor
-            // if new path to neighbor is shorter OR neighbor is not in OPEN O(n)
-                // set f_cost of neighbor // TODO - figure out heuristic shit
-                // set parent of neighbor to current
-                // if neighbor is not in OPEN
-                    // add neighbour to OPEN
+                continue;
+            }
+
+            // TODO - Calculate the cost of the path to this neighbor
+            // g_cost = distance from starting node
+            // h_cost = heuristic calculated distance from end node
+            // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
+            double f_cost;
+
+            // Determine the location of the neighbor in OPEN
+            int neighbor_i = -1; // -1 index indiciates the neighbor is not in OPEN
+            for ( int j=0; j < openQueue.size(); j++ ) {
+                if ( openQueue.at(j)->node == neighbor->node ) {
+                    neighbor_i = j;
+                    break;
+                }
+            }
+
+            // if neighbor is not in OPEN - add it
+            if ( neighbor_i == -1 ) {
+                openQueue.push_back(std::make_shared<SearchNode>(neighbor->node, f_cost, current));
+                sortOPEN = true;
+            }
+            // it is in OPEN and the new path to neighbor is shorter - update its f_cost and parent node
+            else if (neighbor_i != -1 && f_cost < openQueue.at(neighbor_i)->f_cost) {
+                openQueue.at(i)->f_cost = f_cost;
+                std::weak_ptr<SearchNode> prevNode = current;
+                openQueue.at(i)->prevNode = prevNode;
+                sortOPEN = true;
+            }
         }
         
-        // if internal state changed, or something was added to OPEN, resort OPEN
+        // if internal state changed, or anything in OPEN changed, re-sort OPEN
+        if ( sortOPEN ) {
+            // Use QUICK sort
+            this->quickSort(&openQueue, 0, openQueue.size() - 1);
+        }
     }
+}
+
+void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
+    if ( low < high ) {
+      /* p is partitioning index, vector[p] is now
+        at right place */
+      int p = partition(vector, low, high);
+
+      // Separately sort elements before
+      // partition and after partition
+      quickSort(vector, low, p - 1);
+      quickSort(vector, p + 1, high);
+   }
+}
+
+int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
+    double pivot = vector->at(high)->f_cost; // pivot
+    int i = (low - 1); // Index of smaller element and indicates the right position of pivot found so far
+ 
+    for (int j = low; j < high; j++)
+    {
+        // If current element is smaller than the pivot
+        if (vector->at(j)->f_cost < pivot)
+        {
+            i++; // increment index of smaller element
+            vector->at(i).swap(vector->at(j));
+        }
+    }
+    vector->at(i + 1).swap(vector->at(high));
+    return (i + 1);
 }
 
 void Simulation::outputPath() {}

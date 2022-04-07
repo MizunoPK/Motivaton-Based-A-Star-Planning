@@ -14,10 +14,10 @@ class Simulation {
     // Associated a Node in a path with an f_cost, and the previous node in the path
     struct SearchNode {
         std::shared_ptr<Node> node;
-        int f_cost;
+        double f_cost;
         std::weak_ptr<SearchNode> prevNode;
 
-        SearchNode(std::shared_ptr<Node> n, int f, std::weak_ptr<SearchNode> p) {
+        SearchNode(std::shared_ptr<Node> n, double f, std::weak_ptr<SearchNode> p) {
             node = n;
             f_cost = f;
             prevNode = p;
@@ -30,38 +30,53 @@ private:
     std::shared_ptr<Agent> agent;
 
     // Function: initializeStateSpace
+    // Description: Initializes the local StateSpace object with the information from the input files
     // Input: 
     //      nodesFile - The path to the file outlining the nodes that are being pathed
     //      adjacenciesFile - The path to the file outline the nodes' adjacency list
-    // Description: Initializes the local StateSpace object with the information from the input files
     void initializeStateSpace(std::string nodeFile, std::string adjacenciesFile);
 
     // Function: initStateSpaceNodes
+    // Description: Initializes the nodes for the StateSpace object with the information from the input files
     // Input: 
     //      nodesFile - The path to the file outlining the nodes that are being pathed
-    // Description: Initializes the nodes for the StateSpace object with the information from the input files
     void initStateSpaceNodes(std::string nodeFile);
 
     // Function: initStateSpaceAdjs
+    // Description: Initializes the adjacency lists for the StateSpace object with the information from the input files
     // Input: 
     //      adjacenciesFile - The path to the file outline the nodes' adjacency list
-    // Description: Initializes the adjacency lists for the StateSpace object with the information from the input files
     void initStateSpaceAdjs(std::string adjacenciesFile);
 
     // Function: initializeAgent
+    // Description: Initializes everything related to the agent
     // Input: 
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
-    // Description: Initializes everything related to the agent
     void initializeAgent(std::string agentFile);
+
+    /// Quick Sort Functions:
+    // Description: The main function that implements QuickSort
+    // Function: quickSort
+    // Input: 
+    //      vector --> pointer to the vector being sorted
+    //      low --> Starting index,
+    //      high --> Ending index
+    void quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
+
+    // Function: partition
+    // Description: Picks a pivot element from the vector, and moves everything smaller than it to be before the pivot, and everything larger is palced after the pivot
+    // Input: Same as quickSort
+    // Output: The index of the partition
+    int partition (std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
     
 public:
     // Function: Constructor
+    // Description: Initializes all the information provided to the simulation via the config files
     // Inputs:
     //      nodesFile - The path to the file outlining the nodes that are being pathed
     //      adjacenciesFile - The path to the file outline the nodes' adjacency list
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
-    // Description: Initializes all the information provided to the simulation via the config files
     Simulation(std::string nodeFile, std::string adjacenciesFile, std::string agentFile);
 
     // Function: runSearch 
