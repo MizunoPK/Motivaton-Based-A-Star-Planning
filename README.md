@@ -15,40 +15,14 @@ Check Outputs:
 - Number of Nodes Traversed
 
 Input File(s) Structure:
-1) NodeDefinition:
-   1) Node | [internal state] | [change value]
-2) AdjaceniesDefinition:
-   1) Node | [{Adjacent Node},{Weight}] or NULL if there are no adjacent nodes
+1) GraphDefinition:
+   1) [x,y] | [internal state] | [change value]
 3) AgentDefinition:
    1) [Starting Internal State]
-   2) Starting Node
-   3) Primary Goal
+   2) Starting Coordinate
+   3) Primary Goal Coordinate
    4) [Secondary Goal(s)] or NULL if there are no secondary goals
 
-#Classes:
-##Simulation
-Primary Goal
-1) Data Structures:
-- List of Secondary Goals
-2) Integrated Classes:
-- State Space
-- Agent
-3) Methods:
-- runSearch()
-- outputPath()
-##StateSpace
-1) Data Structures:
-- HashTable: AdjacencyList
-2) Methods:
-- lookup(Node)
-##Node
-Node Name
-1) Data Structures:
-- List of Internal State(s)
-- List of Change Values
-##Agent
-1) Data Structures:
-- List of Internal State(s)
-2) Methods:
-- getState()
-- setState()
+Output File Structure:
+[Num Steps]
+[x,y] [agent internal state] [open queue]

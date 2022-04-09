@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
          case ':':
          case '?':
          default:
-            std::cout << "useage: " << argv[0] << " -v" << std::endl;
+            std::cout << "usage: " << argv[0] << " -v" << std::endl;
             exit(-1);
          }
       }
