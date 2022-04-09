@@ -1,3 +1,4 @@
+#include "includes.h"
 #include <iostream>
 #include "Simulation.h"
 
@@ -6,19 +7,32 @@ void printUsage() {
 }
 
 int main(int argc, char **argv) {
-   // Check the Arguments
-   if (argc != 4) {
-      std::cout << "Error: 3 command line arguments expected. Recieved " << argc - 1 << std::endl;
-      printUsage();
-      exit(-1);
-   }
+   // * Process the command line arguments
+   boost::log::add_console_log(std::cout, boost::log::keywords::format = "%Message%");
+   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 
-   // Get the file names
-   std::string nodesFile = argv[1];
-   std::string adjacenciesFile = argv[2];
-   std::string agentFile = argv[3];
+   // * Check the Arguments
+   int option;
+   while((option = getopt(argc, argv, "v")) != -1) {
+      switch(option){
+         case 'v':
+            std::cout << "-v detected" << std::endl;
+            boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+            break;
+         case ':':
+         case '?':
+         default:
+            std::cout << "useage: " << argv[0] << " -v" << std::endl;
+            exit(-1);
+         }
+      }
 
-   // Set up the Simulation 
+   // * Get the file names
+   std::string nodesFile = argv[optind++];
+   std::string adjacenciesFile = argv[optind++];
+   std::string agentFile = argv[optind];
+
+   // * Set up the Simulation 
    Simulation sim(nodesFile, adjacenciesFile, agentFile);
 
    return 0;

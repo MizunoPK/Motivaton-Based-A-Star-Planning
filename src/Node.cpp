@@ -1,3 +1,4 @@
+#include "includes.h"
 #include "Node.h"
 
 Node::Node(std::string name, std::vector<int> state, std::vector<int> modifiers) {
@@ -6,7 +7,7 @@ Node::Node(std::string name, std::vector<int> state, std::vector<int> modifiers)
     this->modifiers = modifiers;
 }
 
-// Getters:
+// * Getters:
 std::string Node::getName() {return this->name;}
 std::vector<int> Node::getState() {return this->state;}
 std::vector<int> Node::getModifiers() {return this->modifiers;}
