@@ -19,7 +19,7 @@ std::vector<std::shared_ptr<Adjacency>> StateSpace::getAdjacencyList(std::shared
     return this->adjacencyMap[node];
 }
 
-// Debug Tools:
+// * Debug Tools:
 void StateSpace::printNodes() {
     std::cout << "State Space Nodes:" << std::endl;
     for (auto const& [key, val] : this->nodes) {

@@ -25,36 +25,36 @@ class Simulation {
     };
 
 private:
-    // VARIABLES
+    // * VARIABLES
     std::shared_ptr<StateSpace> ss;
     std::shared_ptr<Agent> agent;
 
-    // Function: initializeStateSpace
+    // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
     // Input: 
     //      nodesFile - The path to the file outlining the nodes that are being pathed
     //      adjacenciesFile - The path to the file outline the nodes' adjacency list
     void initializeStateSpace(std::string nodeFile, std::string adjacenciesFile);
 
-    // Function: initStateSpaceNodes
+    // * Function: initStateSpaceNodes
     // Description: Initializes the nodes for the StateSpace object with the information from the input files
     // Input: 
     //      nodesFile - The path to the file outlining the nodes that are being pathed
     void initStateSpaceNodes(std::string nodeFile);
 
-    // Function: initStateSpaceAdjs
+    // * Function: initStateSpaceAdjs
     // Description: Initializes the adjacency lists for the StateSpace object with the information from the input files
     // Input: 
     //      adjacenciesFile - The path to the file outline the nodes' adjacency list
     void initStateSpaceAdjs(std::string adjacenciesFile);
 
-    // Function: initializeAgent
+    // * Function: initializeAgent
     // Description: Initializes everything related to the agent
     // Input: 
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     void initializeAgent(std::string agentFile);
 
-    /// Quick Sort Functions:
+    /// * Quick Sort Functions:
     // Description: The main function that implements QuickSort
     // Function: quickSort
     // Input: 
@@ -63,7 +63,7 @@ private:
     //      high --> Ending index
     void quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
-    // Function: partition
+    // * Function: partition
     // Description: Picks a pivot element from the vector, and moves everything smaller than it to be before the pivot, and everything larger is palced after the pivot
     // Input: Same as quickSort
     // Output: The index of the partition
@@ -71,7 +71,7 @@ private:
 
     
 public:
-    // Function: Constructor
+    // * Function: Constructor
     // Description: Initializes all the information provided to the simulation via the config files
     // Inputs:
     //      nodesFile - The path to the file outlining the nodes that are being pathed
@@ -79,11 +79,11 @@ public:
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     Simulation(std::string nodeFile, std::string adjacenciesFile, std::string agentFile);
 
-    // Function: runSearch 
+    // * Function: runSearch 
     // Description: Runs the A* search on the initialized data
     void runSearch();
 
-    // Function: outputPath 
+    // * Function: outputPath 
     // Description: Outputs the resultant path to a file
     // Output File Format:
     //      {Starting Node (step 0)}

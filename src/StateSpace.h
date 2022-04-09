@@ -6,7 +6,7 @@
 #include "Node.h"
 #include <memory>
 
-// Helper Struct
+// * Helper Struct
 // Stores the std::shared_ptr<Node> and Weight for some adjacency in the Adjacencies Table
 struct Adjacency {
     std::shared_ptr<Node> node;
@@ -20,35 +20,35 @@ struct Adjacency {
 
 class StateSpace {
 private:
-    // Map: Nodes
+    // * Map: Nodes
     // Node Name -> Node Pointer 
     std::unordered_map<std::string, std::shared_ptr<Node>> nodes;
 
-    // Map: adjacencyMap
+    // * Map: adjacencyMap
     // std::shared_ptr<Node> -> Vector of Tuples: (std::shared_ptr<Node>, Travel Weight)
     std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap;
 public:
-    // Function: initNodes
+    // * Function: initNodes
     // Description: initializes the nodes map with the provided data
     void initNodes(std::unordered_map<std::string, std::shared_ptr<Node>>);
 
-    // Function: initAdjacencies
+    // * Function: initAdjacencies
     // Description: initializes the adjacencyList map with the provided data
     void initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>>);
     
-    // Function: getNode
+    // * Function: getNode
     // Description: Accesses the nodes map and returns the requested Node pointer 
     // Input: nodeName - The name of the node being fetched
     // Output: std::shared_ptr<Node> - A pointer to the fetched node 
     std::shared_ptr<Node> getNode(std::string nodeName);
 
-    // Function: getAdjacencyList
+    // * Function: getAdjacencyList
     // Description: Accesses the adjacencyList map and returns the requested vector
     // Input: node - The pointer of the node whose list is being fetched
     // Output: vector - The associated adjacencyList 
     std::vector<std::shared_ptr<Adjacency>> getAdjacencyList(std::shared_ptr<Node> node);
 
-    // Debug Tools:
+    // * Debug Tools:
     void printNodes();
     void printAdjacencies();
 };

@@ -29,7 +29,7 @@ std::vector<int> splitStateList(std::string listStr) {
     return intSplit;
 }
 
-// Debugging Functions:
+// * Debugging Functions:
 void printStateVector(std::vector<int> states) {
     std::cout << "[";
     for ( int i=0; i < states.size(); i++ ) {

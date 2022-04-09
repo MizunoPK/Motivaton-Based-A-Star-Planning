@@ -10,13 +10,13 @@ Agent::Agent(std::vector<int> state, std::shared_ptr<Node> startingNode, std::sh
     this->secondaryGoals = secondaryGoals;
 }
 
-// Getters
+// * Getters
 std::vector<int> Agent::getState() {return this->state;}
 std::shared_ptr<Node> Agent::getStartingNode() {return this->startingNode;}
 std::shared_ptr<Node> Agent::getPrimaryGoal() {return this->primaryGoal;}
 std::vector<std::shared_ptr<Node>> Agent::getSecondaryGoals() {return this->secondaryGoals;}
 
-// Debugging Functions:
+// * Debugging Functions:
 void Agent::printAgentInfo() {
     std::cout << "Agent Internal State: ";
     printStateVector(this->state);
