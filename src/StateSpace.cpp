@@ -8,10 +8,6 @@ StateSpace::StateSpace(std::vector<int> x_bounds, std::vector<int> y_bounds) {
     this->y_bounds = y_bounds;
 }
 
-std::string StateSpace::getCoordString(std::vector<int> coord) {
-    return std::to_string(coord.at(0)) + "," + std::to_string(coord.at(1));
-}
-
 void StateSpace::setNode(std::string key, std::shared_ptr<Node> val) {
     this->graph[key] = val;
 }

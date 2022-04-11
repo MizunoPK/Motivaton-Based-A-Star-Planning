@@ -41,6 +41,7 @@ int main(int argc, char **argv) {
 
    // * Set up the Simulation 
    Simulation sim(graphFile, agentFile);
+   sim.runSearch();
 
    return 0;
 }

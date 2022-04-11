@@ -28,4 +28,4 @@ clean:
 	rm -f core ${TARGET} ${OBJ_FILES}
 
 basic1:
-	./dynamic-pathing -d 4 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt
+	./dynamic-pathing -d 5 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt > outputs/basic1.log

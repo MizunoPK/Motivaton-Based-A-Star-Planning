@@ -11,3 +11,5 @@ Node::Node(std::vector<int> coord, std::vector<int> state, std::vector<int> modi
 std::vector<int> Node::getCoord() {return this->coord;}
 std::vector<int> Node::getState() {return this->state;}
 std::vector<int> Node::getModifiers() {return this->modifiers;}
+
+double Node::getWeight() {return (double)this->state.at(0);}

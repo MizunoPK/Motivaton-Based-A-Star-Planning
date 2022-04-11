@@ -90,77 +90,103 @@ void Simulation::initializeAgent(std::string agentFile) {
     }
 }
 
-// void Simulation::runSearch() {
-//     // define OPEN - priority queue of nodes ready to be evaluated
-//     std::vector<std::shared_ptr<SearchNode>> openQueue;
+void Simulation::runSearch() {
 
-//     // define CLOSED - a set of nodes already evaluated
-//     //               - defined as a map associating a Node -> SearchNode ... 
-//     //                  Makes it easier to find a SearchNode and ensure only one SearchNode exists per Node
-//     std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>> closedMap;
+    // define OPEN - priority queue of nodes ready to be evaluated
+    std::vector<std::shared_ptr<SearchNode>> openQueue;
 
-//     // add the start node to OPEN
-//     std::weak_ptr<SearchNode> w;
-//     openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, w));
+    // define CLOSED - a set of nodes already evaluated
+    //               - defined as a map associating a Node -> SearchNode ... 
+    //                  Makes it easier to find a SearchNode and ensure only one SearchNode exists per Node
+    std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>> closedMap;
 
-//     // loop through the search
-//     while (true) {
-//         std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
-//         openQueue.pop_back(); // remove current from OPEN
-//         closedMap[current->node] = current; // add current to CLOSED
-//         bool sortOPEN = false; // if we make any changes that need us to re-sort open, update this flag
+    // add the start node to OPEN
+    std::weak_ptr<SearchNode> w;
+    openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, 0, w));
 
-//         // if current is the target node - the path has been found
-//         if ( current->node == agent->getPrimaryGoal() ) {
-//             break;
-//         }
+    // loop through the search
+    while (true) {
+        if ( LOGGING_LEVEL > 4 ) {
+            std::string openString = "";
+            for ( int i = openQueue.size() - 1; i >= 0; i-- ) {
+                openString = openString + "(" + getCoordString(openQueue.at(i)->node->getCoord()) + ") ";
+            }
+            TRACE << "Current OPEN queue: " << openString << ENDL;
+        }
+
+        std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
+        openQueue.pop_back(); // remove current from OPEN
+        closedMap[current->node] = current; // add current to CLOSED
+        bool sortOPEN = false; // if we make any changes that need us to re-sort open, update this flag
+
+        TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
+
+        // if current is the target node - the path has been found
+        if ( current->node == agent->getPrimaryGoal() ) {
+            TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
+            break;
+        }
         
-//         // foreach neighbor of the current node
-//         std::vector<std::shared_ptr<Adjacency>> neighbors = this->ss->getAdjacencyList(current->node);
-//         for ( int i=0; i < neighbors.size(); i++ ) {
-//             std::shared_ptr<Adjacency> neighbor = neighbors.at(i);
-//             // if neighbor is in CLOSED
-//             if ( closedMap.find(neighbor->node) != closedMap.end() ) {
-//                 // skip to the next neighbor
-//                 continue;
-//             }
+        // foreach neighbor of the current node
+        std::vector<std::shared_ptr<Node>> neighbors = this->ss->getAdjacencyList(current->node);
+        for ( int i=0; i < neighbors.size(); i++ ) {
+            std::shared_ptr<Node> neighbor = neighbors.at(i);
+            // if neighbor is in CLOSED
+            if ( closedMap.find(neighbor) != closedMap.end() ) {
+                // skip to the next neighbor
+                TRACE << "This neighbor is already in CLOSED... Skipping" << ENDL;
+                continue;
+            }
+            TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
 
-//             // TODO - Calculate the cost of the path to this neighbor
-//             // g_cost = distance from starting node
-//             // h_cost = heuristic calculated distance from end node
-//             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
-//             double f_cost;
+            // Calculate the cost of the path to this neighbor
+            // g_cost = distance from starting node
+            double g_cost = current->g_cost + neighbor->getWeight();
+            TRACE << "G Cost: " << g_cost << ENDL;
+            // h_cost = heuristic calculated distance from end node - manhatten distance
+            std::vector<int> neighborCoord = neighbor->getCoord();
+            std::vector<int> goalCoord = this->agent->getPrimaryGoal()->getCoord();
+            double h_cost = abs(neighborCoord.at(0) - goalCoord.at(0)) + abs(neighborCoord.at(1) - goalCoord.at(1));
+            TRACE << "H Cost: " << h_cost << ENDL;
+            // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
+            double f_cost = h_cost + g_cost;
+            TRACE << "F Cost: " << f_cost << ENDL;
 
-//             // Determine the location of the neighbor in OPEN
-//             int neighbor_i = -1; // -1 index indiciates the neighbor is not in OPEN
-//             for ( int j=0; j < openQueue.size(); j++ ) {
-//                 if ( openQueue.at(j)->node == neighbor->node ) {
-//                     neighbor_i = j;
-//                     break;
-//                 }
-//             }
+            // Determine the location of the neighbor in OPEN
+            int neighbor_i = -1; // -1 index indiciates the neighbor is not in OPEN
+            for ( int j=0; j < openQueue.size(); j++ ) {
+                if ( openQueue.at(j)->node == neighbor ) {
+                    neighbor_i = j;
+                    break;
+                }
+            }
 
-//             // if neighbor is not in OPEN - add it
-//             if ( neighbor_i == -1 ) {
-//                 openQueue.push_back(std::make_shared<SearchNode>(neighbor->node, f_cost, current));
-//                 sortOPEN = true;
-//             }
-//             // it is in OPEN and the new path to neighbor is shorter - update its f_cost and parent node
-//             else if (neighbor_i != -1 && f_cost < openQueue.at(neighbor_i)->f_cost) {
-//                 openQueue.at(i)->f_cost = f_cost;
-//                 std::weak_ptr<SearchNode> prevNode = current;
-//                 openQueue.at(i)->prevNode = prevNode;
-//                 sortOPEN = true;
-//             }
-//         }
+            // if neighbor is not in OPEN - add it
+            if ( neighbor_i == -1 ) {
+                openQueue.push_back(std::make_shared<SearchNode>(neighbor, g_cost, f_cost, current));
+                sortOPEN = true;
+                TRACE << "New valid neighbor found... Adding to OPEN" << ENDL;
+            }
+            // it is in OPEN and the new path to neighbor is shorter - update its f_cost and parent node
+            else if (neighbor_i != -1 && f_cost < openQueue.at(neighbor_i)->f_cost) {
+                openQueue.at(i)->f_cost = f_cost;
+                std::weak_ptr<SearchNode> prevNode = current;
+                openQueue.at(i)->prevNode = prevNode;
+                sortOPEN = true;
+                TRACE << "Neighbor already is in OPEN, but we have found a better path to it. Updating the entry in OPEN." << ENDL;
+            }
+        }
         
-//         // if internal state changed, or anything in OPEN changed, re-sort OPEN
-//         if ( sortOPEN ) {
-//             // Use QUICK sort
-//             this->quickSort(&openQueue, 0, openQueue.size() - 1);
-//         }
-//     }
-// }
+        // if internal state changed, or anything in OPEN changed, re-sort OPEN
+        if ( sortOPEN ) {
+            // Use QUICK sort
+            this->quickSort(&openQueue, 0, openQueue.size() - 1);
+        }
+    }
+
+    // Output the results of the search
+    this->outputPath(&closedMap);
+}
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
     if ( low < high ) {
@@ -177,14 +203,14 @@ void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int
 
 int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
     double pivot = vector->at(high)->f_cost; // pivot
-    int i = (low - 1); // Index of smaller element and indicates the right position of pivot found so far
+    int i = (low - 1); // Index of larger element and indicates the right position of pivot found so far
  
     for (int j = low; j < high; j++)
     {
-        // If current element is smaller than the pivot
-        if (vector->at(j)->f_cost < pivot)
+        // If current element is larger than the pivot
+        if (vector->at(j)->f_cost > pivot)
         {
-            i++; // increment index of smaller element
+            i++; // increment index of larger element
             vector->at(i).swap(vector->at(j));
         }
     }
@@ -192,4 +218,33 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
     return (i + 1);
 }
 
-void Simulation::outputPath() {}
+
+
+void Simulation::outputPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap) {
+    std::vector<std::shared_ptr<Node>> backwardsPath;
+    backwardsPath.push_back(agent->getPrimaryGoal());
+    findPath(&backwardsPath, (*closedMap)[agent->getPrimaryGoal()]->prevNode);
+
+    INFO << "RESULTING PATH (Length: " << backwardsPath.size() << "):" << ENDL;
+    for ( int i = backwardsPath.size() - 1; i >= 0; i-- ) {
+        INFO << getCoordString(backwardsPath.at(i)->getCoord()) << ENDL;
+    }
+}
+
+void Simulation::findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode) {
+    // Make sure the SearchNode the weak pointer to is pointing to still exists
+    if ( auto tempSharedPointer = pathNode.lock() ) {
+        path->push_back(tempSharedPointer->node);
+        // Recursive Case: There is more to the path to add to the stack
+        if ( tempSharedPointer->node != agent->getStartingNode() ) {
+            findPath(path, tempSharedPointer->prevNode);
+        }
+    }
+    else {
+        FATAL << "Encountered a weak pointer whose object does not exist!" << ENDL;
+        FATAL << "Here's the path that was able to be compiled (Length: " << path->size() << "):" << ENDL;
+        for ( int i = path->size() - 1; i >= 0; i-- ) {
+            INFO << getCoordString(path->at(i)->getCoord()) << ENDL;
+        }
+    }
+}

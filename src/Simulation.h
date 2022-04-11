@@ -14,11 +14,13 @@ class Simulation {
     // Associated a Node in a path with an f_cost, and the previous node in the path
     struct SearchNode {
         std::shared_ptr<Node> node;
+        double g_cost;
         double f_cost;
         std::weak_ptr<SearchNode> prevNode;
 
-        SearchNode(std::shared_ptr<Node> n, double f, std::weak_ptr<SearchNode> p) {
+        SearchNode(std::shared_ptr<Node> n, double g, double f, std::weak_ptr<SearchNode> p) {
             node = n;
+            g_cost = g;
             f_cost = f;
             prevNode = p;
         }
@@ -56,6 +58,13 @@ private:
     // Output: The index of the partition
     int partition (std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
+    // * Function: outputPath 
+    // Description: Outputs the resultant path to a file
+    void outputPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap);
+
+    // * Function: findPath
+    // Description: Helper function for outputPath. Recursively outputs the nodes in the path to the provided vector
+    void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode);
     
 public:
     // * Function: Constructor
@@ -68,10 +77,6 @@ public:
     // * Function: runSearch 
     // Description: Runs the A* search on the initialized data
     void runSearch();
-
-    // * Function: outputPath 
-    // Description: Outputs the resultant path to a file
-    void outputPath();
 };
 
 

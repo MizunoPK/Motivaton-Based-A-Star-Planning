@@ -29,6 +29,10 @@ std::vector<int> splitIntList(std::string listStr) {
     return intSplit;
 }
 
+std::string getCoordString(std::vector<int> coord) {
+    return std::to_string(coord.at(0)) + "," + std::to_string(coord.at(1));
+}
+
 // * Debugging Functions:
 void printIntVector(std::vector<int> nums) {
     std::cout << "[";

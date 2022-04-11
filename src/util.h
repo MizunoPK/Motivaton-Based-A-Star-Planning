@@ -22,6 +22,10 @@ std::vector<std::string> split(const std::string &s, char delim);
 // Output: vector<int> - a vector made up of the state ints
 std::vector<int> splitIntList(std::string listStr);
 
+// Helper Function: getCoordString
+// Description: Return the string version of a coordinate
+std::string getCoordString(std::vector<int> coord);
+
 // * Debugging Functions:
 void printIntVector(std::vector<int> states);
 

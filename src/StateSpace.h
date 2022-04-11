@@ -18,10 +18,6 @@ private:
     std::vector<int> x_bounds;
     std::vector<int> y_bounds;
 
-    // Helper Function: getCoordString
-    // Description: Return the string version of a coordinate
-    std::string getCoordString(std::vector<int> coord);
-
     // Helper Function: addNeighbor
     // Description: Checks if the given neighbor is valid to traverse, if so it adds it to the given vector of nodes
     void addNeighbor(std::vector<std::shared_ptr<Node>>* adjacencies, std::vector<int> neighbor);
