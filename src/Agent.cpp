@@ -18,20 +18,26 @@ std::vector<std::shared_ptr<Node>> Agent::getSecondaryGoals() {return this->seco
 
 // * Debugging Functions:
 void Agent::printAgentInfo() {
-    std::cout << "Agent Internal State: ";
-    printStateVector(this->state);
-    std::cout << std::endl;
+    if (LOGGING_LEVEL > 3) {
+        DEBUG << "Agent Internal State: ";
+        printIntVector(this->state);
+        NEWL;
 
-    std::cout << "Starting Node: " << this->startingNode->getName() << std::endl;
+        DEBUG << "Starting Node: "; 
+        printIntVector(this->startingNode->getCoord());
+        NEWL;
 
-    std::cout << "Primary Goal: " << this->primaryGoal->getName() << std::endl;
+        DEBUG << "Primary Goal: ";
+        printIntVector(this->primaryGoal->getCoord());
+        NEWL;
 
-    std::cout << "Secondary Goals: [";
-    for ( int i=0; i < this->secondaryGoals.size(); i++ ) {
-        std::cout << this->secondaryGoals.at(i)->getName();
-        if ( i < this->secondaryGoals.size() - 1 ) {
-            std::cout << ",";
+        DEBUG << "Secondary Goals: [";
+        for ( int i=0; i < this->secondaryGoals.size(); i++ ) {
+            printIntVector(this->secondaryGoals.at(i)->getCoord());
+            if ( i < this->secondaryGoals.size() - 1 ) {
+                std::cout << ",";
+            }
         }
+        std::cout << "]" << ENDL;
     }
-    std::cout << "]" << std::endl;
 }

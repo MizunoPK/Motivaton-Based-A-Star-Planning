@@ -1,39 +1,46 @@
 #include "includes.h"
-#include <iostream>
 #include "Simulation.h"
+#include <unistd.h>
 
 void printUsage() {
-   std::cout << "Usage: ./dynamic-pathing {nodesFile} {adjacenciesFile} {agentFile}" << std::endl;
+   std::cout << "Usage: ./dynamic-pathing -g <graphFile> -a <agentFile> -d <debug level> " << std::endl;
 }
 
 int main(int argc, char **argv) {
    // * Process the command line arguments
-   boost::log::add_console_log(std::cout, boost::log::keywords::format = "%Message%");
-   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+   LOGGING_LEVEL = 0;
+   std::string graphFile = "";
+   std::string agentFile = "";
 
    // * Check the Arguments
    int option;
-   while((option = getopt(argc, argv, "v")) != -1) {
-      switch(option){
-         case 'v':
-            std::cout << "-v detected" << std::endl;
-            boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+   while((option = getopt(argc, argv, "d:g:a:")) != -1) {
+      switch(option) {
+         case 'g':
+            graphFile = optarg;
+            break;
+         case 'a':
+            agentFile = optarg;
+            break;
+         case 'd':
+            LOGGING_LEVEL = atoi(optarg);
             break;
          case ':':
          case '?':
          default:
-            std::cout << "usage: " << argv[0] << " -v" << std::endl;
+            printUsage();
             exit(-1);
          }
-      }
-
-   // * Get the file names
-   std::string nodesFile = argv[optind++];
-   std::string adjacenciesFile = argv[optind++];
-   std::string agentFile = argv[optind];
+   }
+   if ( graphFile == "" || agentFile == "" ) {
+      ERROR << "Must provide a graph file and an agent file." << ENDL;
+      printUsage();
+   }
+   INFO << "Running Search on files " << graphFile << " and " << agentFile << ENDL;
+   INFO << "Debug Level: " << LOGGING_LEVEL << ENDL;
 
    // * Set up the Simulation 
-   Simulation sim(nodesFile, adjacenciesFile, agentFile);
+   Simulation sim(graphFile, agentFile);
 
    return 0;
 }

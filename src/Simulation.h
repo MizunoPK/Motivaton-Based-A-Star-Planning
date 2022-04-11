@@ -32,21 +32,8 @@ private:
     // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
     // Input: 
-    //      nodesFile - The path to the file outlining the nodes that are being pathed
-    //      adjacenciesFile - The path to the file outline the nodes' adjacency list
-    void initializeStateSpace(std::string nodeFile, std::string adjacenciesFile);
-
-    // * Function: initStateSpaceNodes
-    // Description: Initializes the nodes for the StateSpace object with the information from the input files
-    // Input: 
-    //      nodesFile - The path to the file outlining the nodes that are being pathed
-    void initStateSpaceNodes(std::string nodeFile);
-
-    // * Function: initStateSpaceAdjs
-    // Description: Initializes the adjacency lists for the StateSpace object with the information from the input files
-    // Input: 
-    //      adjacenciesFile - The path to the file outline the nodes' adjacency list
-    void initStateSpaceAdjs(std::string adjacenciesFile);
+    //      graphFile - The path to the file outlining the graph nodes
+    void initializeStateSpace(std::string graphFile);
 
     // * Function: initializeAgent
     // Description: Initializes everything related to the agent
@@ -74,10 +61,9 @@ public:
     // * Function: Constructor
     // Description: Initializes all the information provided to the simulation via the config files
     // Inputs:
-    //      nodesFile - The path to the file outlining the nodes that are being pathed
-    //      adjacenciesFile - The path to the file outline the nodes' adjacency list
+    //      graphFile - The path to the file outlining the graph nodes
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
-    Simulation(std::string nodeFile, std::string adjacenciesFile, std::string agentFile);
+    Simulation(std::string graphFile, std::string agentFile);
 
     // * Function: runSearch 
     // Description: Runs the A* search on the initialized data
@@ -85,13 +71,6 @@ public:
 
     // * Function: outputPath 
     // Description: Outputs the resultant path to a file
-    // Output File Format:
-    //      {Starting Node (step 0)}
-    //      {Node at step 1}
-    //      {Node at step 2}
-    //      ...
-    //      {Node at step (n-1)}
-    //      {Primary Goal Node}
     void outputPath();
 };
 

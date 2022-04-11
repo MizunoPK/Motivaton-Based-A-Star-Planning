@@ -16,13 +16,15 @@ Check Outputs:
 
 Input File(s) Structure:
 1) GraphDefinition:
-   1) [x,y] | [internal state] | [change value]
+   1) <Min X Value>,<Max X Value>
+   2) <Min Y Value>,<Max Y Value>
+   3...) <x>,<y> <internal state> <change value>
 3) AgentDefinition:
-   1) [Starting Internal State]
+   1) <Starting Internal State>
    2) Starting Coordinate
    3) Primary Goal Coordinate
-   4) [Secondary Goal(s)] or NULL if there are no secondary goals
+   4) <Secondary Goal(s)> or NULL if there are no secondary goals
 
 Output File Structure:
-[Num Steps]
-[x,y] [agent internal state] [open queue]
+<Num Steps>
+<x,y> <agent internal state> <open queue>

@@ -1,13 +1,13 @@
 #include "includes.h"
 #include "Node.h"
 
-Node::Node(std::string name, std::vector<int> state, std::vector<int> modifiers) {
-    this->name = name;
+Node::Node(std::vector<int> coord, std::vector<int> state, std::vector<int> modifiers) {
+    this->coord = coord;
     this->state = state;
     this->modifiers = modifiers;
 }
 
 // * Getters:
-std::string Node::getName() {return this->name;}
+std::vector<int> Node::getCoord() {return this->coord;}
 std::vector<int> Node::getState() {return this->state;}
 std::vector<int> Node::getModifiers() {return this->modifiers;}

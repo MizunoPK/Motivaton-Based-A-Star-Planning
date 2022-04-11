@@ -19,7 +19,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-std::vector<int> splitStateList(std::string listStr) {
+std::vector<int> splitIntList(std::string listStr) {
     std::vector<std::string> stringSplit = split(listStr, ',');
     std::vector<int> intSplit;
     for (int i=0; i < stringSplit.size(); i++) {
@@ -30,11 +30,11 @@ std::vector<int> splitStateList(std::string listStr) {
 }
 
 // * Debugging Functions:
-void printStateVector(std::vector<int> states) {
+void printIntVector(std::vector<int> nums) {
     std::cout << "[";
-    for ( int i=0; i < states.size(); i++ ) {
-        std::cout << states.at(i);
-        if ( i < states.size() - 1 ) {
+    for ( int i=0; i < nums.size(); i++ ) {
+        std::cout << nums.at(i);
+        if ( i < nums.size() - 1 ) {
             std::cout << ", ";
         }
     }

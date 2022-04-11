@@ -3,48 +3,64 @@
 #include "util.h"
 #include <iostream>
 
-void StateSpace::initNodes(std::unordered_map<std::string, std::shared_ptr<Node>> nodes) {
-    this->nodes = nodes;
+StateSpace::StateSpace(std::vector<int> x_bounds, std::vector<int> y_bounds) {
+    this->x_bounds = x_bounds;
+    this->y_bounds = y_bounds;
 }
 
-void StateSpace::initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap) {
-    this->adjacencyMap = adjacencyMap;
+std::string StateSpace::getCoordString(std::vector<int> coord) {
+    return std::to_string(coord.at(0)) + "," + std::to_string(coord.at(1));
+}
+
+void StateSpace::setNode(std::string key, std::shared_ptr<Node> val) {
+    this->graph[key] = val;
 }
  
-std::shared_ptr<Node> StateSpace::getNode(std::string nodeName) {
-    return this->nodes[nodeName];
+std::shared_ptr<Node> StateSpace::getNode(std::vector<int> nodeCoord) {
+    return this->graph[getCoordString(nodeCoord)];
 }
 
-std::vector<std::shared_ptr<Adjacency>> StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
-    return this->adjacencyMap[node];
+void StateSpace::addNeighbor(std::vector<std::shared_ptr<Node>>* adjacencies, std::vector<int> neighbor) {
+    if ( neighbor.at(0) >= this->x_bounds.at(0)
+        && neighbor.at(0) <= this->x_bounds.at(1)
+        && neighbor.at(1) >= this->y_bounds.at(0)
+        && neighbor.at(1) <= this->y_bounds.at(1)
+        && this->graph.find(getCoordString(neighbor)) != this->graph.end() ) {
+            adjacencies->push_back(this->getNode(neighbor));
+    }
+}
+
+std::vector<std::shared_ptr<Node>> StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
+    std::vector<std::shared_ptr<Node>> adjacencies;
+    std::vector<int> coord = node->getCoord();
+    addNeighbor(&adjacencies, std::vector<int> {coord.at(0) + 1, coord.at(1)});
+    addNeighbor(&adjacencies, std::vector<int> {coord.at(0) - 1, coord.at(1)});
+    addNeighbor(&adjacencies, std::vector<int> {coord.at(0), coord.at(1) + 1});
+    addNeighbor(&adjacencies, std::vector<int> {coord.at(0), coord.at(1) - 1});
+    return adjacencies;
 }
 
 // * Debug Tools:
 void StateSpace::printNodes() {
-    std::cout << "State Space Nodes:" << std::endl;
-    for (auto const& [key, val] : this->nodes) {
-        std::cout << key
-                << " (" << val << ") : ";
+    if (LOGGING_LEVEL > 3) {
+        DEBUG << "X Bounds: ";
+        printIntVector(this->x_bounds);
+        NEWL;
 
-        printStateVector(val->getState());
-        std::cout << " - ";
-        printStateVector(val->getModifiers());
+        DEBUG << "Y Bounds: ";
+        printIntVector(this->y_bounds);
+        NEWL;
 
-        std::cout << std::endl;
-    }
-}
-void StateSpace::printAdjacencies() {
-    std::cout << "State Space Adjacency Table:" << std::endl;
-    for (auto const& [key, val] : this->adjacencyMap) {
-        std::cout << key->getName() << ":[";
+        DEBUG << "State Space Nodes:" << ENDL;
+        for (auto const& [key, val] : this->graph) {
+            DEBUG << key
+                    << " (" << val << ") : ";
 
-        for ( int i=0; i < val.size(); i++ ) {
-            std::cout << "(" << val.at(i)->node->getName() << "-" << val.at(i)->weight << ")";
-            if ( i < val.size() - 1 ) {
-                std::cout << ",";
-            }
+            printIntVector(val->getState());
+            std::cout << " - ";
+            printIntVector(val->getModifiers());
+
+            NEWL;
         }
-
-        std::cout << "]" << std::endl;
     }
 }

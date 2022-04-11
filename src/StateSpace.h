@@ -6,51 +6,48 @@
 #include "Node.h"
 #include <memory>
 
-// * Helper Struct
-// Stores the std::shared_ptr<Node> and Weight for some adjacency in the Adjacencies Table
-struct Adjacency {
-    std::shared_ptr<Node> node;
-    int weight;
-
-    Adjacency(std::shared_ptr<Node> n, int w) {
-        node = n;
-        weight = w;
-    }
-};
-
 class StateSpace {
 private:
-    // * Map: Nodes
-    // Node Name -> Node Pointer 
-    std::unordered_map<std::string, std::shared_ptr<Node>> nodes;
+    // * Map: Graph Nodes
+    // Node Coord -> Node Pointer 
+    // Opted for a map here instead of a vector because we could potentially have many unused coordinates that are untraversable...
+    //    using a vector would just lead to a lot of wasted space.
+    std::unordered_map<std::string, std::shared_ptr<Node>> graph;
+    
+    // Min/Max values for X and Y
+    std::vector<int> x_bounds;
+    std::vector<int> y_bounds;
 
-    // * Map: adjacencyMap
-    // std::shared_ptr<Node> -> Vector of Tuples: (std::shared_ptr<Node>, Travel Weight)
-    std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>> adjacencyMap;
+    // Helper Function: getCoordString
+    // Description: Return the string version of a coordinate
+    std::string getCoordString(std::vector<int> coord);
+
+    // Helper Function: addNeighbor
+    // Description: Checks if the given neighbor is valid to traverse, if so it adds it to the given vector of nodes
+    void addNeighbor(std::vector<std::shared_ptr<Node>>* adjacencies, std::vector<int> neighbor);
+
 public:
-    // * Function: initNodes
-    // Description: initializes the nodes map with the provided data
-    void initNodes(std::unordered_map<std::string, std::shared_ptr<Node>>);
+    // * Function: Constructpr
+    StateSpace(std::vector<int> x_bounds, std::vector<int> y_bounds);
 
-    // * Function: initAdjacencies
-    // Description: initializes the adjacencyList map with the provided data
-    void initAdjacencies(std::unordered_map<std::shared_ptr<Node>, std::vector<std::shared_ptr<Adjacency>>>);
+    // * Function: setNode
+    // Description: adds/sets a node to the graph
+    void setNode(std::string key, std::shared_ptr<Node> val);
     
     // * Function: getNode
     // Description: Accesses the nodes map and returns the requested Node pointer 
-    // Input: nodeName - The name of the node being fetched
+    // Input: nodeCoord - The coordinate of the node being fetched
     // Output: std::shared_ptr<Node> - A pointer to the fetched node 
-    std::shared_ptr<Node> getNode(std::string nodeName);
+    std::shared_ptr<Node> getNode(std::vector<int> nodeCoord);
 
     // * Function: getAdjacencyList
-    // Description: Accesses the adjacencyList map and returns the requested vector
+    // Description: Returns a list of nodes that are adjacent to a given node
     // Input: node - The pointer of the node whose list is being fetched
     // Output: vector - The associated adjacencyList 
-    std::vector<std::shared_ptr<Adjacency>> getAdjacencyList(std::shared_ptr<Node> node);
+    std::vector<std::shared_ptr<Node>> getAdjacencyList(std::shared_ptr<Node> node);
 
     // * Debug Tools:
     void printNodes();
-    void printAdjacencies();
 };
 
 
