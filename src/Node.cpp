@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "Node.h"
 
-Node::Node(std::vector<int> coord, std::vector<double> state, std::vector<double> modifiers) {
+Node::Node(std::vector<int>& coord, std::vector<double>& state, std::vector<double>& modifiers) {
     this->coord = coord;
     this->state = state;
     this->modifiers = modifiers;

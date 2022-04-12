@@ -13,7 +13,7 @@ private:
 public:
     // Function: Constructor 
     // Description: Initializes the information associated with this node 
-    Node(std::vector<int> coord, std::vector<double> state, std::vector<double> modifiers);
+    Node(std::vector<int>& coord, std::vector<double>& state, std::vector<double>& modifiers);
 
     // Getters
     std::vector<int> getCoord();

@@ -15,7 +15,7 @@ private:
     
 public:
     // Constructor
-    Agent(std::vector<double> state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>> secondaryGoals);
+    Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals);
 
     // Getters
     std::vector<double> getState();

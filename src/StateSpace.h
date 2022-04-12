@@ -20,11 +20,11 @@ private:
 
     // Helper Function: addNeighbor
     // Description: Checks if the given neighbor is valid to traverse, if so it adds it to the given vector of nodes
-    void addNeighbor(std::vector<std::shared_ptr<Node>>* adjacencies, std::vector<int> neighbor);
+    void addNeighbor(std::vector<std::shared_ptr<Node>>& adjacencies, std::vector<int> neighbor);
 
 public:
     // * Function: Constructpr
-    StateSpace(std::vector<int> x_bounds, std::vector<int> y_bounds);
+    StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds);
 
     // * Function: setNode
     // Description: adds/sets a node to the graph

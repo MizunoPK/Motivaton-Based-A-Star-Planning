@@ -3,7 +3,7 @@
 #include "util.h"
 #include <iostream>
 
-Agent::Agent(std::vector<double> state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>> secondaryGoals) {
+Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals) {
     this->state = state;
     this->startingNode = startingNode;
     this->primaryGoal = primaryGoal;
