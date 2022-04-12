@@ -35,10 +35,10 @@ void Simulation::initializeStateSpace(std::string graphFile) {
             std::vector<int> coords = splitIntList(coordsString);
             
             // Get node internal state
-            std::vector<int> state = splitIntList(lineVector.at(1));
+            std::vector<double> state = splitDoubleList(lineVector.at(1));
 
             // Get node agent-modifiers
-            std::vector<int> modifiers = splitIntList(lineVector.at(2));
+            std::vector<double> modifiers = splitDoubleList(lineVector.at(2));
 
             // Make a node and add it to the state space graph
             ss->setNode(coordsString, std::make_shared<Node>(coords, state, modifiers));
@@ -59,7 +59,7 @@ void Simulation::initializeAgent(std::string agentFile) {
         // The agent file should always have 4 lines of relevent data
         // First line is actor state:
         std::getline(agentFileStream, fileLine);
-        std::vector<int> actorState = splitIntList(fileLine);
+        std::vector<double> actorState = splitDoubleList(fileLine);
 
         // Second Line is Starting Node:
         std::getline(agentFileStream, fileLine);

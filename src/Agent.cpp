@@ -3,7 +3,7 @@
 #include "util.h"
 #include <iostream>
 
-Agent::Agent(std::vector<int> state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>> secondaryGoals) {
+Agent::Agent(std::vector<double> state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>> secondaryGoals) {
     this->state = state;
     this->startingNode = startingNode;
     this->primaryGoal = primaryGoal;
@@ -11,7 +11,7 @@ Agent::Agent(std::vector<int> state, std::shared_ptr<Node> startingNode, std::sh
 }
 
 // * Getters
-std::vector<int> Agent::getState() {return this->state;}
+std::vector<double> Agent::getState() {return this->state;}
 std::shared_ptr<Node> Agent::getStartingNode() {return this->startingNode;}
 std::shared_ptr<Node> Agent::getPrimaryGoal() {return this->primaryGoal;}
 std::vector<std::shared_ptr<Node>> Agent::getSecondaryGoals() {return this->secondaryGoals;}
@@ -20,7 +20,7 @@ std::vector<std::shared_ptr<Node>> Agent::getSecondaryGoals() {return this->seco
 void Agent::printAgentInfo() {
     if (LOGGING_LEVEL > 3) {
         DEBUG << "Agent Internal State: ";
-        printIntVector(this->state);
+        printDoubleVector(this->state);
         NEWL;
 
         DEBUG << "Starting Node: "; 

@@ -29,12 +29,32 @@ std::vector<int> splitIntList(std::string listStr) {
     return intSplit;
 }
 
+std::vector<double> splitDoubleList(std::string listStr) {
+    std::vector<std::string> stringSplit = split(listStr, ',');
+    std::vector<double> doubleSplit;
+    for (int i=0; i < stringSplit.size(); i++) {
+        double num = std::stod(stringSplit.at(i));
+        doubleSplit.push_back(num);
+    }
+    return doubleSplit;
+}
+
 std::string getCoordString(std::vector<int> coord) {
     return std::to_string(coord.at(0)) + "," + std::to_string(coord.at(1));
 }
 
 // * Debugging Functions:
 void printIntVector(std::vector<int> nums) {
+    std::cout << "[";
+    for ( int i=0; i < nums.size(); i++ ) {
+        std::cout << nums.at(i);
+        if ( i < nums.size() - 1 ) {
+            std::cout << ", ";
+        }
+    }
+    std::cout << "]";
+}
+void printDoubleVector(std::vector<double> nums) {
     std::cout << "[";
     for ( int i=0; i < nums.size(); i++ ) {
         std::cout << nums.at(i);

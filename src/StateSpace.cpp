@@ -52,9 +52,9 @@ void StateSpace::printNodes() {
             DEBUG << key
                     << " (" << val << ") : ";
 
-            printIntVector(val->getState());
+            printDoubleVector(val->getState());
             std::cout << " - ";
-            printIntVector(val->getModifiers());
+            printDoubleVector(val->getModifiers());
 
             NEWL;
         }

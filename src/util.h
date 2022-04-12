@@ -19,14 +19,22 @@ std::vector<std::string> split(const std::string &s, char delim);
 // Description: splits a given string representing a state into a vector of integers
 // Input:
 //      listStr - The list being split, in string form. Should look like "x,x,x,...,x"
-// Output: vector<int> - a vector made up of the state ints
+// Output: vector<int> - a vector made up of the ints
 std::vector<int> splitIntList(std::string listStr);
+
+// * Function: splitDoubleList
+// Description: splits a given string representing a state into a vector of doubles
+// Input:
+//      listStr - The list being split, in string form. Should look like "x,x,x,...,x"
+// Output: vector<double> - a vector made up of the state doubles
+std::vector<double> splitDoubleList(std::string listStr);
 
 // Helper Function: getCoordString
 // Description: Return the string version of a coordinate
 std::string getCoordString(std::vector<int> coord);
 
 // * Debugging Functions:
-void printIntVector(std::vector<int> states);
+void printIntVector(std::vector<int> nums);
+void printDoubleVector(std::vector<double> nums);
 
 #endif //UTIL_H
