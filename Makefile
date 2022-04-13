@@ -32,3 +32,6 @@ basic1:
 
 no-change:
 	./dynamic-pathing -d 5 -g inputs/no-change/no-change-graph.txt -a inputs/no-change/no-change-agent.txt > outputs/no-change.log
+
+can-change:
+	./dynamic-pathing -d 5 -g inputs/can-change/can-change-graph.txt -a inputs/can-change/can-change-agent.txt > outputs/can-change.log

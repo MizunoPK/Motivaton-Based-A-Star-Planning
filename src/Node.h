@@ -9,6 +9,7 @@ private:
     std::vector<int> coord; // The coordinate of this node 
     std::vector<double> state; // The internal state associated with this node 
     std::vector<double> modifiers; // The value modifiers that will be applied to the agent after going to this node
+    bool canChangeAgent;
     
 public:
     // Function: Constructor 
@@ -19,6 +20,7 @@ public:
     std::vector<int>* getCoord();
     std::vector<double>* getState();
     std::vector<double>* getModifiers();
+    bool getCanChangeAgent();
 };
 
 

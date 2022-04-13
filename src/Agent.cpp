@@ -10,6 +10,20 @@ Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std
     this->secondaryGoals = secondaryGoals;
 }
 
+void Agent::updateState(std::vector<double>* modifiers) {
+    for ( int i=0; i < modifiers->size(); i++ ) {
+        this->state.at(i) += modifiers->at(i);
+    }
+
+    if ( LOGGING_LEVEL > 4 ) {
+        TRACE << "Updated Agent Internal State to: [";
+        for ( int i=0; i < this->state.size(); i++ ) {
+            std::cout << this->state.at(i) << ",";
+        }
+        NEWL;
+    }
+}
+
 // * Getters
 std::vector<double>* Agent::getState() {return &(this->state);}
 std::shared_ptr<Node> Agent::getStartingNode() {return this->startingNode;}

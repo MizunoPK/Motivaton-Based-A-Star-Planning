@@ -17,6 +17,10 @@ public:
     // Constructor
     Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals);
 
+    // * Function: updateState
+    // Description: Updates the internal state of the agent reflecting the provided change values
+    void updateState(std::vector<double>* modifiers);
+
     // Getters
     std::vector<double>* getState();
     std::shared_ptr<Node> getStartingNode();

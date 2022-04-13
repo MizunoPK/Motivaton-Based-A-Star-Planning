@@ -102,7 +102,60 @@ double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>*
 }
 
 void Simulation::runSearch() {
-    std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(this->agent->getStartingNode());
+    TRACE << "Starting Search..." << ENDL;
+
+    // Track the overall path taken
+    std::vector<std::shared_ptr<Node>> finalPath;
+
+    // Set the first node to be checked as the agent's start node
+    std::shared_ptr<Node> startingNode = this->agent->getStartingNode();
+    finalPath.push_back(startingNode);
+
+    // Loop until we reach the goal
+    bool stillLooping = true;
+    while(stillLooping) {
+        TRACE << "Getting Anticipated Path from Starting Node " << getCoordString(startingNode->getCoord()) << " ..." << ENDL;
+
+        // Get the path from the new start node to the goal
+        // IMPORTANT: this path is stored backwards
+        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode);
+
+        if ( LOGGING_LEVEL > 4 ) {
+            TRACE << "Anticipated Path: ";
+            for ( int i = anticipatedPath.size() - 1; i >= 0; i-- ) {
+                std::cout << getCoordString(anticipatedPath.at(i)->getCoord()) << " - ";
+            }
+            NEWL;
+        }
+
+        // Add nodes from the anticipated path to the final path, 
+        // until we need to change the agent's state or reach the goal
+        // Starting at size() - 2 because anticipatedPath is backwards and the first node in this path should already be in finalPath
+        for ( int i = anticipatedPath.size() - 2; i >= 0; i-- ) {
+            TRACE << "Adding node " << getCoordString(anticipatedPath.at(i)->getCoord()) << " to final path..." << ENDL;
+            finalPath.push_back(anticipatedPath.at(i));
+
+            // if we reached the goal, stop looping
+            if ( anticipatedPath.at(i) == this->agent->getPrimaryGoal() ) {
+                TRACE << "We have found the goal! Breaking search..." << ENDL;
+                stillLooping = false;
+                break;
+            }
+            // if we change the agent's state, perform the change and loop again
+            else if ( anticipatedPath.at(i)->getCanChangeAgent() ) {
+                this->agent->updateState(anticipatedPath.at(i)->getModifiers());
+                startingNode = anticipatedPath.at(i);
+                TRACE << "Agent state changed... Redoing A* search to find a new best path." << ENDL;
+                break;
+            }
+        }
+    }
+    
+    // Output the final path
+    INFO << "RESULTING FINAL PATH (Length: " << finalPath.size() << "):" << ENDL;
+    for ( int i = 0; i < finalPath.size(); i++ ) {
+        INFO << getCoordString(finalPath.at(i)->getCoord()) << ENDL;
+    }
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode) {
@@ -121,12 +174,12 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
 
     // loop through the search
     while (true) {
-        if ( LOGGING_LEVEL > 4 ) {
+        if ( LOGGING_LEVEL > 5 ) {
             std::string openString = "";
             for ( int i = openQueue.size() - 1; i >= 0; i-- ) {
                 openString = openString + "(" + getCoordString(openQueue.at(i)->node->getCoord()) + ") ";
             }
-            TRACE << "Current OPEN queue: " << openString << ENDL;
+            DEEP_TRACE << "Current OPEN queue: " << openString << ENDL;
         }
 
         std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
@@ -134,11 +187,11 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
         closedMap[current->node] = current; // add current to CLOSED
         bool sortOPEN = false; // if we make any changes that need us to re-sort open, update this flag
 
-        TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
+        DEEP_TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
 
         // if current is the target node - the path has been found
         if ( current->node == agent->getPrimaryGoal() ) {
-            TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
+            DEEP_TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
             break;
         }
         
@@ -146,26 +199,26 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
         std::vector<std::shared_ptr<Node>> neighbors = this->ss->getAdjacencyList(current->node);
         for ( int i=0; i < neighbors.size(); i++ ) {
             std::shared_ptr<Node> neighbor = neighbors.at(i);
-            TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
+            DEEP_TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
             // if neighbor is in CLOSED
             if ( closedMap.find(neighbor) != closedMap.end() ) {
                 // skip to the next neighbor
-                TRACE << "This neighbor is already in CLOSED... Skipping" << ENDL;
+                DEEP_TRACE << "This neighbor is already in CLOSED... Skipping" << ENDL;
                 continue;
             }
 
             // Calculate the cost of the path to this neighbor
             // g_cost = distance from starting node
             double g_cost = current->g_cost + calculateWeight(agent->getState(), neighbor->getState());
-            TRACE << "G Cost: " << g_cost << ENDL;
+            DEEP_TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
             std::vector<int>* neighborCoord = neighbor->getCoord();
             std::vector<int>* goalCoord = this->agent->getPrimaryGoal()->getCoord();
             double h_cost = abs(neighborCoord->at(0) - goalCoord->at(0)) + abs(neighborCoord->at(1) - goalCoord->at(1));
-            TRACE << "H Cost: " << h_cost << ENDL;
+            DEEP_TRACE << "H Cost: " << h_cost << ENDL;
             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
             double f_cost = h_cost + g_cost;
-            TRACE << "F Cost: " << f_cost << ENDL;
+            DEEP_TRACE << "F Cost: " << f_cost << ENDL;
 
             // Determine the location of the neighbor in OPEN
             int neighbor_i = -1; // -1 index indiciates the neighbor is not in OPEN
@@ -180,7 +233,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
             if ( neighbor_i == -1 ) {
                 openQueue.push_back(std::make_shared<SearchNode>(neighbor, g_cost, f_cost, current));
                 sortOPEN = true;
-                TRACE << "New valid neighbor found... Adding to OPEN" << ENDL;
+                DEEP_TRACE << "New valid neighbor found... Adding to OPEN" << ENDL;
             }
             // it is in OPEN and the new path to neighbor is shorter - update its f_cost and parent node
             else if (neighbor_i != -1 && f_cost < openQueue.at(neighbor_i)->f_cost) {
@@ -188,7 +241,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
                 std::weak_ptr<SearchNode> prevNode = current;
                 openQueue.at(i)->prevNode = prevNode;
                 sortOPEN = true;
-                TRACE << "Neighbor already is in OPEN, but we have found a better path to it. Updating the entry in OPEN." << ENDL;
+                DEEP_TRACE << "Neighbor already is in OPEN, but we have found a better path to it. Updating the entry in OPEN." << ENDL;
             }
         }
         
@@ -237,12 +290,6 @@ std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::s
     std::vector<std::shared_ptr<Node>> backwardsPath;
     backwardsPath.push_back(agent->getPrimaryGoal());
     findPath(&backwardsPath, (*closedMap)[agent->getPrimaryGoal()]->prevNode, startingNode);
-
-    TRACE << "RESULTING PATH (Length: " << backwardsPath.size() << "):" << ENDL;
-    for ( int i = backwardsPath.size() - 1; i >= 0; i-- ) {
-        TRACE << getCoordString(backwardsPath.at(i)->getCoord()) << ENDL;
-    }
-
     return backwardsPath;
 }
 

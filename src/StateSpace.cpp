@@ -56,6 +56,8 @@ void StateSpace::printNodes() {
             std::cout << " - ";
             printDoubleVector(val->getModifiers());
 
+            std::cout << " - " << val->getCanChangeAgent();
+
             NEWL;
         }
     }
