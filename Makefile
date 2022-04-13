@@ -29,3 +29,6 @@ clean:
 
 basic1:
 	./dynamic-pathing -d 5 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt > outputs/basic1.log
+
+no-change:
+	./dynamic-pathing -d 5 -g inputs/no-change/no-change-graph.txt -a inputs/no-change/no-change-agent.txt > outputs/no-change.log
