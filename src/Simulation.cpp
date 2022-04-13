@@ -144,9 +144,9 @@ void Simulation::runSearch() {
             double g_cost = current->g_cost + neighbor->getWeight();
             TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
-            std::vector<int> neighborCoord = neighbor->getCoord();
-            std::vector<int> goalCoord = this->agent->getPrimaryGoal()->getCoord();
-            double h_cost = abs(neighborCoord.at(0) - goalCoord.at(0)) + abs(neighborCoord.at(1) - goalCoord.at(1));
+            std::vector<int>* neighborCoord = neighbor->getCoord();
+            std::vector<int>* goalCoord = this->agent->getPrimaryGoal()->getCoord();
+            double h_cost = abs(neighborCoord->at(0) - goalCoord->at(0)) + abs(neighborCoord->at(1) - goalCoord->at(1));
             TRACE << "H Cost: " << h_cost << ENDL;
             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
             double f_cost = h_cost + g_cost;

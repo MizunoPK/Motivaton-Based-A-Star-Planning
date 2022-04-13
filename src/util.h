@@ -31,10 +31,10 @@ std::vector<double> splitDoubleList(std::string listStr);
 
 // Helper Function: getCoordString
 // Description: Return the string version of a coordinate
-std::string getCoordString(std::vector<int> coord);
+std::string getCoordString(std::vector<int>* coord);
 
 // * Debugging Functions:
-void printIntVector(std::vector<int> nums);
-void printDoubleVector(std::vector<double> nums);
+void printIntVector(std::vector<int>* nums);
+void printDoubleVector(std::vector<double>* nums);
 
 #endif //UTIL_H

@@ -11,16 +11,16 @@ Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std
 }
 
 // * Getters
-std::vector<double> Agent::getState() {return this->state;}
+std::vector<double>* Agent::getState() {return &(this->state);}
 std::shared_ptr<Node> Agent::getStartingNode() {return this->startingNode;}
 std::shared_ptr<Node> Agent::getPrimaryGoal() {return this->primaryGoal;}
-std::vector<std::shared_ptr<Node>> Agent::getSecondaryGoals() {return this->secondaryGoals;}
+std::vector<std::shared_ptr<Node>>* Agent::getSecondaryGoals() {return &(this->secondaryGoals);}
 
 // * Debugging Functions:
 void Agent::printAgentInfo() {
     if (LOGGING_LEVEL > 3) {
         DEBUG << "Agent Internal State: ";
-        printDoubleVector(this->state);
+        printDoubleVector(getState());
         NEWL;
 
         DEBUG << "Starting Node: "; 

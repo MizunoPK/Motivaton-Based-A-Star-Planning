@@ -43,6 +43,12 @@ private:
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     void initializeAgent(std::string agentFile);
 
+    // * Function: calculateWeight
+    // Description: For the given two state vectors, calculate the G-cost
+    // Input: Two vectors of state values being compared
+    // Output: double - The weight associated from going between the two nodes
+    // double calculateWeight(std::vector<double>& v1, std::vector<double>& v2);
+
     /// * Quick Sort Functions:
     // Description: The main function that implements QuickSort
     // Function: quickSort

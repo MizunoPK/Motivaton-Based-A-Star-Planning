@@ -39,26 +39,26 @@ std::vector<double> splitDoubleList(std::string listStr) {
     return doubleSplit;
 }
 
-std::string getCoordString(std::vector<int> coord) {
-    return std::to_string(coord.at(0)) + "," + std::to_string(coord.at(1));
+std::string getCoordString(std::vector<int>* coord) {
+    return std::to_string(coord->at(0)) + "," + std::to_string(coord->at(1));
 }
 
 // * Debugging Functions:
-void printIntVector(std::vector<int> nums) {
+void printIntVector(std::vector<int>* nums) {
     std::cout << "[";
-    for ( int i=0; i < nums.size(); i++ ) {
-        std::cout << nums.at(i);
-        if ( i < nums.size() - 1 ) {
+    for ( int i=0; i < nums->size(); i++ ) {
+        std::cout << nums->at(i);
+        if ( i < nums->size() - 1 ) {
             std::cout << ", ";
         }
     }
     std::cout << "]";
 }
-void printDoubleVector(std::vector<double> nums) {
+void printDoubleVector(std::vector<double>* nums) {
     std::cout << "[";
-    for ( int i=0; i < nums.size(); i++ ) {
-        std::cout << nums.at(i);
-        if ( i < nums.size() - 1 ) {
+    for ( int i=0; i < nums->size(); i++ ) {
+        std::cout << nums->at(i);
+        if ( i < nums->size() - 1 ) {
             std::cout << ", ";
         }
     }
