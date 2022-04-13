@@ -90,6 +90,17 @@ void Simulation::initializeAgent(std::string agentFile) {
     }
 }
 
+double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>* v2) {
+    double weight = 0;
+    for ( int i=0; i < v1->size(); i++ ) {
+        weight += abs(v1->at(i) - v2->at(i));
+    }
+    
+    // TODO Scale the weight down so it is comparable to the h_cost
+
+    return weight;
+}
+
 void Simulation::runSearch() {
 
     // define OPEN - priority queue of nodes ready to be evaluated
@@ -131,17 +142,17 @@ void Simulation::runSearch() {
         std::vector<std::shared_ptr<Node>> neighbors = this->ss->getAdjacencyList(current->node);
         for ( int i=0; i < neighbors.size(); i++ ) {
             std::shared_ptr<Node> neighbor = neighbors.at(i);
+            TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
             // if neighbor is in CLOSED
             if ( closedMap.find(neighbor) != closedMap.end() ) {
                 // skip to the next neighbor
                 TRACE << "This neighbor is already in CLOSED... Skipping" << ENDL;
                 continue;
             }
-            TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
 
             // Calculate the cost of the path to this neighbor
             // g_cost = distance from starting node
-            double g_cost = current->g_cost + neighbor->getWeight();
+            double g_cost = current->g_cost + calculateWeight(agent->getState(), neighbor->getState());
             TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
             std::vector<int>* neighborCoord = neighbor->getCoord();

@@ -19,10 +19,6 @@ public:
     std::vector<int>* getCoord();
     std::vector<double>* getState();
     std::vector<double>* getModifiers();
-
-    // Gets the transition weight for this node
-    // This may or may not be useful when accounting for states
-    double getWeight();
 };
 
 

@@ -43,11 +43,18 @@ private:
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     void initializeAgent(std::string agentFile);
 
+    // * Function: runAstar
+    // Description: Runs one interation of A* for the given start node
+    // Inputs:
+    //      startNode - The starting node of the path being searched for
+    // Output: vector<Node> - a vector of nodes representing the generated path
+    std::vector<std::shared_ptr<Node>> runAstar(std::shared_ptr<Node> startingNode);
+
     // * Function: calculateWeight
     // Description: For the given two state vectors, calculate the G-cost
     // Input: Two vectors of state values being compared
     // Output: double - The weight associated from going between the two nodes
-    // double calculateWeight(std::vector<double>& v1, std::vector<double>& v2);
+    double calculateWeight(std::vector<double>* v1, std::vector<double>* v2);
 
     /// * Quick Sort Functions:
     // Description: The main function that implements QuickSort
