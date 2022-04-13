@@ -102,6 +102,10 @@ double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>*
 }
 
 void Simulation::runSearch() {
+    std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(this->agent->getStartingNode());
+}
+
+std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode) {
 
     // define OPEN - priority queue of nodes ready to be evaluated
     std::vector<std::shared_ptr<SearchNode>> openQueue;
@@ -113,7 +117,7 @@ void Simulation::runSearch() {
 
     // add the start node to OPEN
     std::weak_ptr<SearchNode> w;
-    openQueue.push_back(std::make_shared<SearchNode>(agent->getStartingNode(), 0, 0, w));
+    openQueue.push_back(std::make_shared<SearchNode>(startingNode, 0, 0, w));
 
     // loop through the search
     while (true) {
@@ -196,7 +200,7 @@ void Simulation::runSearch() {
     }
 
     // Output the results of the search
-    this->outputPath(&closedMap);
+    return this->getPath(&closedMap, startingNode);
 }
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
@@ -229,26 +233,26 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
     return (i + 1);
 }
 
-
-
-void Simulation::outputPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap) {
+std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode) {
     std::vector<std::shared_ptr<Node>> backwardsPath;
     backwardsPath.push_back(agent->getPrimaryGoal());
-    findPath(&backwardsPath, (*closedMap)[agent->getPrimaryGoal()]->prevNode);
+    findPath(&backwardsPath, (*closedMap)[agent->getPrimaryGoal()]->prevNode, startingNode);
 
-    INFO << "RESULTING PATH (Length: " << backwardsPath.size() << "):" << ENDL;
+    TRACE << "RESULTING PATH (Length: " << backwardsPath.size() << "):" << ENDL;
     for ( int i = backwardsPath.size() - 1; i >= 0; i-- ) {
-        INFO << getCoordString(backwardsPath.at(i)->getCoord()) << ENDL;
+        TRACE << getCoordString(backwardsPath.at(i)->getCoord()) << ENDL;
     }
+
+    return backwardsPath;
 }
 
-void Simulation::findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode) {
+void Simulation::findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode) {
     // Make sure the SearchNode the weak pointer to is pointing to still exists
     if ( auto tempSharedPointer = pathNode.lock() ) {
         path->push_back(tempSharedPointer->node);
         // Recursive Case: There is more to the path to add to the stack
-        if ( tempSharedPointer->node != agent->getStartingNode() ) {
-            findPath(path, tempSharedPointer->prevNode);
+        if ( tempSharedPointer->node != startingNode ) {
+            findPath(path, tempSharedPointer->prevNode, startingNode);
         }
     }
     else {

@@ -71,13 +71,13 @@ private:
     // Output: The index of the partition
     int partition (std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
-    // * Function: outputPath 
-    // Description: Outputs the resultant path to a file
-    void outputPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap);
+    // * Function: getPath 
+    // Description: Outputs the resultant path of an individual A* search to a vector
+    std::vector<std::shared_ptr<Node>> getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode);
 
     // * Function: findPath
     // Description: Helper function for outputPath. Recursively outputs the nodes in the path to the provided vector
-    void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode);
+    void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode);
     
 public:
     // * Function: Constructor
