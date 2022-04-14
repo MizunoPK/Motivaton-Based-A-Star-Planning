@@ -118,11 +118,13 @@ void Simulation::runSearch() {
     // Loop until we reach the goal
     bool stillLooping = true;
     while(stillLooping) {
-        TRACE << "Getting Anticipated Path from Starting Node " << getCoordString(startingNode->getCoord()) << " ..." << ENDL;
+        TRACE << "Getting Anticipated Path from Starting Node " 
+            << getCoordString(startingNode->getCoord()) << " to goal node " 
+            << getCoordString(goalNode->getCoord()) << ENDL;
 
         // Get the path from the new start node to the goal
         // IMPORTANT: this path is stored backwards
-        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode, this->agent->getPrimaryGoal());
+        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode, goalNode);
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
