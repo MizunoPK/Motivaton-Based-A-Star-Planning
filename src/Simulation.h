@@ -47,8 +47,9 @@ private:
     // Description: Runs one interation of A* for the given start node
     // Inputs:
     //      startNode - The starting node of the path being searched for
+    //      goalNode - the node at the end of the path
     // Output: vector<Node> - a vector of nodes representing the generated path
-    std::vector<std::shared_ptr<Node>> runAstar(std::shared_ptr<Node> startingNode);
+    std::vector<std::shared_ptr<Node>> runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
 
     // * Function: calculateWeight
     // Description: For the given two state vectors, calculate the G-cost
@@ -73,7 +74,7 @@ private:
 
     // * Function: getPath 
     // Description: Outputs the resultant path of an individual A* search to a vector
-    std::vector<std::shared_ptr<Node>> getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode);
+    std::vector<std::shared_ptr<Node>> getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
 
     // * Function: findPath
     // Description: Helper function for outputPath. Recursively outputs the nodes in the path to the provided vector

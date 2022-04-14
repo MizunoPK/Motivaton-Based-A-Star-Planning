@@ -111,6 +111,10 @@ void Simulation::runSearch() {
     std::shared_ptr<Node> startingNode = this->agent->getStartingNode();
     finalPath.push_back(startingNode);
 
+    // Init a node to track where the agent is currently moving towards
+    // This will be either the primary goal or a secondary goal 
+    std::shared_ptr<Node> goalNode = this->agent->getPrimaryGoal();
+
     // Loop until we reach the goal
     bool stillLooping = true;
     while(stillLooping) {
@@ -118,7 +122,7 @@ void Simulation::runSearch() {
 
         // Get the path from the new start node to the goal
         // IMPORTANT: this path is stored backwards
-        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode);
+        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode, this->agent->getPrimaryGoal());
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
@@ -136,7 +140,7 @@ void Simulation::runSearch() {
             finalPath.push_back(anticipatedPath.at(i));
 
             // if we reached the goal, stop looping
-            if ( anticipatedPath.at(i) == this->agent->getPrimaryGoal() ) {
+            if ( anticipatedPath.at(i) == goalNode ) {
                 TRACE << "We have found the goal! Breaking search..." << ENDL;
                 stillLooping = false;
                 break;
@@ -158,7 +162,7 @@ void Simulation::runSearch() {
     }
 }
 
-std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode) {
+std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
 
     // define OPEN - priority queue of nodes ready to be evaluated
     std::vector<std::shared_ptr<SearchNode>> openQueue;
@@ -190,7 +194,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
         DEEP_TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
 
         // if current is the target node - the path has been found
-        if ( current->node == agent->getPrimaryGoal() ) {
+        if ( current->node == goalNode ) {
             DEEP_TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
             break;
         }
@@ -213,7 +217,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
             DEEP_TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
             std::vector<int>* neighborCoord = neighbor->getCoord();
-            std::vector<int>* goalCoord = this->agent->getPrimaryGoal()->getCoord();
+            std::vector<int>* goalCoord = goalNode->getCoord();
             double h_cost = abs(neighborCoord->at(0) - goalCoord->at(0)) + abs(neighborCoord->at(1) - goalCoord->at(1));
             DEEP_TRACE << "H Cost: " << h_cost << ENDL;
             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
@@ -253,7 +257,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
     }
 
     // Output the results of the search
-    return this->getPath(&closedMap, startingNode);
+    return this->getPath(&closedMap, startingNode, goalNode);
 }
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
@@ -286,10 +290,10 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
     return (i + 1);
 }
 
-std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode) {
+std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
     std::vector<std::shared_ptr<Node>> backwardsPath;
-    backwardsPath.push_back(agent->getPrimaryGoal());
-    findPath(&backwardsPath, (*closedMap)[agent->getPrimaryGoal()]->prevNode, startingNode);
+    backwardsPath.push_back(goalNode);
+    findPath(&backwardsPath, (*closedMap)[goalNode]->prevNode, startingNode);
     return backwardsPath;
 }
 
