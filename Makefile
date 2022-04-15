@@ -28,10 +28,10 @@ clean:
 	rm -f core ${TARGET} ${OBJ_FILES}
 
 basic1:
-	./dynamic-pathing -d 5 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt > outputs/basic1.log
+	./dynamic-pathing -d 5 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt -o outputs/basic1-output.txt > outputs/basic1.log
 
 no-change:
-	./dynamic-pathing -d 5 -g inputs/no-change/no-change-graph.txt -a inputs/no-change/no-change-agent.txt > outputs/no-change.log
+	./dynamic-pathing -d 5 -g inputs/no-change/no-change-graph.txt -a inputs/no-change/no-change-agent.txt -o outputs/no-change-output.txt > outputs/no-change.log
 
 can-change:
-	./dynamic-pathing -d 5 -g inputs/can-change/can-change-graph.txt -a inputs/can-change/can-change-agent.txt > outputs/can-change.log
+	./dynamic-pathing -d 5 -g inputs/can-change/can-change-graph.txt -a inputs/can-change/can-change-agent.txt -o outputs/can-change-ouput.txt > outputs/can-change.log

@@ -26,10 +26,27 @@ class Simulation {
         }
     };
 
+    // Another helper structure used only by the search
+    // Used to store information about each node in the final path
+    // This information is used by the outputToFile function
+    struct FinalPathNode {
+        std::shared_ptr<Node> node;
+        std::vector<double> agentState;
+        std::vector<std::shared_ptr<Node>> anticipatedPath;
+
+        FinalPathNode(std::shared_ptr<Node> n, std::vector<double> as, std::vector<std::shared_ptr<Node>> ap) {
+            node = n;
+            agentState = as;
+            anticipatedPath = ap;
+        }
+    };
+
 private:
     // * VARIABLES
     std::shared_ptr<StateSpace> ss;
     std::shared_ptr<Agent> agent;
+    std::string outputPath;
+    std::vector<std::shared_ptr<FinalPathNode>> finalPath; 
 
     // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
@@ -79,6 +96,10 @@ private:
     // * Function: findPath
     // Description: Helper function for outputPath. Recursively outputs the nodes in the path to the provided vector
     void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode);
+
+    // * Function outputToFile
+    // Description: Outputs the resultant path of the graph to the designated output file
+    void outputToFile();
     
 public:
     // * Function: Constructor
@@ -86,7 +107,8 @@ public:
     // Inputs:
     //      graphFile - The path to the file outlining the graph nodes
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
-    Simulation(std::string graphFile, std::string agentFile);
+    //      outputFile - The path to where we want to output the results of the search
+    Simulation(std::string graphFile, std::string agentFile, std::string outputFile);
 
     // * Function: runSearch 
     // Description: Runs the A* search on the initialized data

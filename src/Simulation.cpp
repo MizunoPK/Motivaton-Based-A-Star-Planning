@@ -4,9 +4,11 @@
 #include <fstream>
 #include <vector>
 
-Simulation::Simulation(std::string graphFile, std::string agentFile) {
+Simulation::Simulation(std::string graphFile, std::string agentFile, std::string outputPath) {
     initializeStateSpace(graphFile);
     initializeAgent(agentFile);
+
+    this->outputPath = outputPath;
 
     // Debugging Prints
     this->ss->printNodes();
@@ -91,6 +93,10 @@ void Simulation::initializeAgent(std::string agentFile) {
 }
 
 double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>* v2) {
+    // Currently, the weight is being calculated based on the difference between each corresponding state
+    // Example:
+    //      v1=[10, 0] and v2=[3, 3] have a difference vector of [7, 3]
+    //      We add up the differences to get a weight of 10
     double weight = 0;
     for ( int i=0; i < v1->size(); i++ ) {
         weight += abs(v1->at(i) - v2->at(i));
@@ -104,20 +110,15 @@ double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>*
 void Simulation::runSearch() {
     TRACE << "Starting Search..." << ENDL;
 
-    // Track the overall path taken
-    std::vector<std::shared_ptr<Node>> finalPath;
-
     // Set the first node to be checked as the agent's start node
     std::shared_ptr<Node> startingNode = this->agent->getStartingNode();
-    finalPath.push_back(startingNode);
 
     // Init a node to track where the agent is currently moving towards
     // This will be either the primary goal or a secondary goal 
     std::shared_ptr<Node> goalNode = this->agent->getPrimaryGoal();
 
     // Loop until we reach the goal
-    bool stillLooping = true;
-    while(stillLooping) {
+    while(true) {
         TRACE << "Getting Anticipated Path from Starting Node " 
             << getCoordString(startingNode->getCoord()) << " to goal node " 
             << getCoordString(goalNode->getCoord()) << ENDL;
@@ -134,34 +135,35 @@ void Simulation::runSearch() {
             NEWL;
         }
 
-        // Add nodes from the anticipated path to the final path, 
-        // until we need to change the agent's state or reach the goal
-        // Starting at size() - 2 because anticipatedPath is backwards and the first node in this path should already be in finalPath
-        for ( int i = anticipatedPath.size() - 2; i >= 0; i-- ) {
-            TRACE << "Adding node " << getCoordString(anticipatedPath.at(i)->getCoord()) << " to final path..." << ENDL;
-            finalPath.push_back(anticipatedPath.at(i));
+        // Add the node to the Final Path
+        TRACE << "Adding node " << getCoordString(startingNode->getCoord()) << " to final path..." << ENDL;
+        this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath) );
 
-            // if we reached the goal, stop looping
-            if ( anticipatedPath.at(i) == goalNode ) {
-                TRACE << "We have found the goal! Breaking search..." << ENDL;
-                stillLooping = false;
-                break;
-            }
-            // if we change the agent's state, perform the change and loop again
-            else if ( anticipatedPath.at(i)->getCanChangeAgent() ) {
-                this->agent->updateState(anticipatedPath.at(i)->getModifiers());
-                startingNode = anticipatedPath.at(i);
-                TRACE << "Agent state changed... Redoing A* search to find a new best path." << ENDL;
-                break;
+        // if we reached the goal, stop looping
+        if ( startingNode == goalNode ) {
+            TRACE << "We have found the goal! Breaking search..." << ENDL;
+            break;
+        }
+
+        // Get the first node in the path
+        // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
+        std::shared_ptr<Node> nextNode = anticipatedPath.at(anticipatedPath.size() - 2);
+        
+        // if we change the agent's state, perform the change and loop again
+        if ( nextNode->getCanChangeAgent() ) {
+            this->agent->updateState(nextNode->getModifiers());
+
+            if ( LOGGING_LEVEL > 4 ) {
+                TRACE << "Agent state changed... New state: ";
+                printDoubleVector(this->agent->getState());
+                NEWL;
             }
         }
+        startingNode = nextNode;
     }
     
     // Output the final path
-    INFO << "RESULTING FINAL PATH (Length: " << finalPath.size() << "):" << ENDL;
-    for ( int i = 0; i < finalPath.size(); i++ ) {
-        INFO << getCoordString(finalPath.at(i)->getCoord()) << ENDL;
-    }
+    outputToFile();
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
@@ -295,7 +297,9 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
 std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
     std::vector<std::shared_ptr<Node>> backwardsPath;
     backwardsPath.push_back(goalNode);
-    findPath(&backwardsPath, (*closedMap)[goalNode]->prevNode, startingNode);
+    if ( startingNode != goalNode ) {
+        findPath(&backwardsPath, (*closedMap)[goalNode]->prevNode, startingNode);
+    }
     return backwardsPath;
 }
 
@@ -315,4 +319,47 @@ void Simulation::findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_pt
             INFO << getCoordString(path->at(i)->getCoord()) << ENDL;
         }
     }
+}
+
+void Simulation::outputToFile() {
+    TRACE << "Outputting to file: " << this->outputPath << ENDL;
+
+    // Open the file
+    std::ofstream outputStream(this->outputPath);
+
+    // First, output the number of steps the path takes
+    outputStream << this->finalPath.size();
+
+    // Loop through the final path and output each line
+    for ( int i=0; i < this->finalPath.size(); i++ ) {
+        std::shared_ptr<FinalPathNode> fpn = this->finalPath.at(i);
+
+        // Start a new line
+        outputStream << "\n";
+
+        // Output the node coordinates
+        std::vector<int>* fpnCoords = fpn->node->getCoord();
+        outputStream << fpnCoords->at(0) << "," << fpnCoords->at(1) << " ";
+
+        // Output the agent state
+        for ( int j=0; j < fpn->agentState.size(); j++ ) {
+            outputStream << fpn->agentState.at(j);
+            if ( j != fpn->agentState.size() - 1 ) {
+                outputStream << ",";
+            }
+        }
+        outputStream << " ";
+
+        // Output the anticipated path
+        // Note: anticipated path is stored backwards
+        for ( int j = fpn->anticipatedPath.size() - 1; j >= 0; j-- ) {
+            std::vector<int>* nodeCoords = fpn->anticipatedPath.at(j)->getCoord();
+            outputStream << nodeCoords->at(0) << "," << nodeCoords->at(1);
+            if ( j != 0 ) {
+                outputStream << "-";
+            }
+        }
+    }
+
+    outputStream.close();
 }
