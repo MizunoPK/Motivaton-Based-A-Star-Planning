@@ -50,7 +50,7 @@ with open(outFile) as o:
             i += 1
 ######################################################################################################################
 os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'inputs/basic1')) ####ChangeFolder Based on File Location####
+os.chdir(os.path.join(os.getcwd(), 'inputs/can-change')) ####ChangeFolder Based on File Location####
 with open(agentFile) as a:
     agentStartState = a.readline().rstrip()
     startpos = a.readline().rstrip()
@@ -136,12 +136,12 @@ while True:
 
     # Draw the boxes
     ax.imshow(data, interpolation='none', extent=[0, graphSize, 0, graphSize], zorder=0)
-    x,y = setCirclepos(int(currPos[0]), int(currPos[2]))
-    current = Circle((x, y), .5,color='black')
-    currPatches.append(current)
+    # x,y = setCirclepos(int(currPos[0]), int(currPos[2]))
+    # current = Circle((x, y), .5,color='black')
+    # currPatches.append(current)
 
-    for x in currPatches:
-        ax.add_artist(x)
+    # for x in currPatches:
+    #     ax.add_artist(x)
     
     pathPatches = []
     for x in range(len(path[i])):
@@ -155,6 +155,13 @@ while True:
     for x in pathPatches:
         ax.add_artist(x)
         
+    x,y = setCirclepos(int(currPos[0]), int(currPos[2]))
+    current = Circle((x, y), .5,color='black')
+    currPatches.append(current)
+
+    for x in currPatches:
+        ax.add_artist(x)
+    
     ax2.axis('tight')
     ax2.axis('off')
     ax2.table(cellText=df.values,colLabels=column_labels, rowLabels=row_labels,cellLoc='center',loc="center")
@@ -165,7 +172,7 @@ while True:
     row_labels.append("Iteration" + str(i))
     df2 = pd.DataFrame([[str(agentStates[i])]], index=[i+1], columns=['A'])
     df = df.append(df2)
-    currPos = path[i][0]
+    currPos = path[i][1] ####
     i += 1
     # Drawing updated values
     fig.canvas.draw()
