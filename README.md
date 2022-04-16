@@ -24,7 +24,8 @@ Input File(s) Structure:
    2) Starting Coordinate
    3) Primary Goal Coordinate
    4) <Secondary Goal(s)> or NULL if there are no secondary goals
+   5) <Scaler Vision Value>
+   6) <State 1 Threshold>,<State 2 Threshold>,...,<State n Threshold>
 
 Output File Structure:
-<Num Steps>
-<x,y> <agent internal state> <open queue>
+<x,y> <agent internal state> <potential path from this node>
