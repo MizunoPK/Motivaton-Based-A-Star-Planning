@@ -328,14 +328,16 @@ void Simulation::outputToFile() {
     std::ofstream outputStream(this->outputPath);
 
     // First, output the number of steps the path takes
-    outputStream << this->finalPath.size();
+    // outputStream << this->finalPath.size();
 
     // Loop through the final path and output each line
     for ( int i=0; i < this->finalPath.size(); i++ ) {
         std::shared_ptr<FinalPathNode> fpn = this->finalPath.at(i);
 
         // Start a new line
-        outputStream << "\n";
+        if ( i != 0 ) {
+            outputStream << "\n";
+        }
 
         // Output the node coordinates
         std::vector<int>* fpnCoords = fpn->node->getCoord();
