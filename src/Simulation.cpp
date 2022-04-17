@@ -251,6 +251,13 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
 
     // loop through the search
     while (true) {
+        // If there's nothing in the open queue: exit the function
+        // This means that there is no possible way to get to the goal
+        if ( openQueue.size() == 0 ) {
+            DEEP_TRACE << "Open queue is empty... Searching is no longer possible. Exiting A*..." << ENDL;
+            return {};
+        }
+
         if ( LOGGING_LEVEL > 5 ) {
             std::string openString = "";
             for ( int i = openQueue.size() - 1; i >= 0; i-- ) {

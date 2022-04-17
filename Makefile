@@ -38,3 +38,6 @@ can-change:
 
 s-goals:
 	./dynamic-pathing -d 5 -g inputs/s-goals/s-goals-graph.txt -a inputs/s-goals/s-goals-agent.txt -o outputs/s-goals-ouput.txt > outputs/s-goals.log
+
+unreachable:
+	./dynamic-pathing -d 6 -g inputs/unreachable/unreachable-graph.txt -a inputs/unreachable/unreachable-agent.txt -o outputs/unreachable-ouput.txt > outputs/unreachable.log
