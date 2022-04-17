@@ -60,14 +60,12 @@ private:
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     void initializeAgent(std::string agentFile);
 
-    // * findGoal
-    // Description: Determines which node to set as the goal node
+    // * getPath
+    // Description: Gets the best possible path forward from the given start node
     // Inputs:
     //      startingNode - The node we would be starting the path from
-    //      anticipatedPath - A reference to a vector to store the anticipated path... We can save the calculated path
-    //                        to the chosen goal here
-    // Output: goalNode - The chosen goal node
-    std::shared_ptr<Node> findGoal(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath);
+    // Output: anticipatedPath - A vector of nodes making up the anticipated path
+    std::vector<std::shared_ptr<Node>> getPath(std::shared_ptr<Node> startingNode);
 
     // * Function: runAstar
     // Description: Runs one interation of A* for the given start node
@@ -77,11 +75,17 @@ private:
     // Output: vector<Node> - a vector of nodes representing the generated path
     std::vector<std::shared_ptr<Node>> runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
 
-    // * Function: calculateWeight
+    // * Function: calculateGCost
     // Description: For the given two state vectors, calculate the G-cost
     // Input: Two vectors of state values being compared
     // Output: double - The weight associated from going between the two nodes
-    double calculateWeight(std::vector<double>* v1, std::vector<double>* v2);
+    double calculateGCost(std::vector<double>* v1, std::vector<double>* v2);
+
+    // * Function: calculateHCost
+    // Description: Calculate the heuristic h_cost between the two given nodes
+    // Input: Two nodes being compared
+    // Output: double - the calculated h_cost
+    double calculateHCost(std::shared_ptr<Node> n1, std::shared_ptr<Node> n2);
 
     /// * Quick Sort Functions:
     // Description: The main function that implements QuickSort
@@ -98,13 +102,13 @@ private:
     // Output: The index of the partition
     int partition(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
-    // * Function: getPath 
+    // * Function: derivePathFromClosed 
     // Description: Outputs the resultant path of an individual A* search to a vector, given a closed map of SearchNodes
-    std::vector<std::shared_ptr<Node>> getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
+    std::vector<std::shared_ptr<Node>> derivePathFromClosed(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
 
-    // * Function: findPath
-    // Description: Helper function for getPath. Recursively outputs the nodes in the path to the provided vector
-    void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode);
+    // * Function: recurseThroughSearchNode
+    // Description: Helper function for derivePathFromClosed. Recursively outputs the nodes in the path to the provided vector
+    void recurseThroughSearchNode(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode);
 
     // * Function outputToFile
     // Description: Outputs the resultant path of the graph to the designated output file

@@ -10,6 +10,7 @@ private:
     std::vector<double> state; // The internal state associated with this node 
     std::vector<double> modifiers; // The value modifiers that will be applied to the agent after going to this node
     bool canChangeAgent;
+    bool traversed; // whether or not the path has already traversed to this node
     
 public:
     // Function: Constructor 
@@ -21,6 +22,10 @@ public:
     std::vector<double>* getState();
     std::vector<double>* getModifiers();
     bool getCanChangeAgent();
+    bool getTraversed();
+
+    // Setters
+    void setTraversed(bool traversed);
 };
 
 
