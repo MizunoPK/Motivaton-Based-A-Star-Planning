@@ -81,9 +81,17 @@ void Simulation::initializeAgent(std::string agentFile) {
                 secondaryGoals.push_back(goal);
             }
         }
+
+        // Fifth Line is Secondary Goal Vision Range
+        std::getline(agentFileStream, fileLine);
+        int vision = stoi(fileLine);
+
+        // Sixth Line is the Secondary Goal State Ranges
+        std::getline(agentFileStream, fileLine);
+        std::vector<double> goalRanges = splitDoubleList(fileLine);
         
         // Make the agent
-        agent = std::make_shared<Agent>(actorState, startingNode, primaryGoal, secondaryGoals);
+        agent = std::make_shared<Agent>(actorState, startingNode, primaryGoal, secondaryGoals, vision, goalRanges);
         agentFileStream.close();
     }
     else {
@@ -120,12 +128,20 @@ void Simulation::runSearch() {
     // Loop until we reach the goal
     while(true) {
         TRACE << "Getting Anticipated Path from Starting Node " 
-            << getCoordString(startingNode->getCoord()) << " to goal node " 
-            << getCoordString(goalNode->getCoord()) << ENDL;
+            << getCoordString(startingNode->getCoord()) << ENDL;
 
         // Get the path from the new start node to the goal
         // IMPORTANT: this path is stored backwards
-        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode, goalNode);
+        std::vector<std::shared_ptr<Node>> anticipatedPath;
+        // Get the goal node and path
+        goalNode = findGoal(startingNode, anticipatedPath);
+
+        if (anticipatedPath.size() == 0) {
+            FATAL << "COULD NOT FIND ANY POTENTIAL PATH TO THE PRIMARY GOAL... EXITING SIMULATION" << ENDL;
+            exit(-1); 
+        }
+
+        TRACE << "Found a potential path to goal node " << getCoordString(goalNode->getCoord()) << ENDL;
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
@@ -164,6 +180,59 @@ void Simulation::runSearch() {
     
     // Output the final path
     outputToFile();
+}
+
+
+std::shared_ptr<Node> Simulation::findGoal(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath) {
+    // Get useful info
+    std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
+    std::vector<double>* goalRanges = this->agent->getGoalRanges();
+    std::vector<double>* agentState = this->agent->getState();
+    std::vector<int>* startingNodeCoord = startingNode->getCoord();
+
+    // Compile a list of secondary goals within vision range
+    std::vector<std::shared_ptr<SearchNode>> viableGoals;
+    for ( int i=0; i < secondaryGoals->size(); i++ ) {
+        std::vector<int>* nodeCoord = secondaryGoals->at(i)->getCoord();
+        // Currently, the vision is checking all nodes in the circle around the starting node
+        // TODO Modify this to have a more limitted range of vision behind the agent
+        if ( abs(nodeCoord->at(0) - startingNodeCoord->at(0)) <= this->agent->getVision()
+            && abs(nodeCoord->at(1) - startingNodeCoord->at(1)) <= this->agent->getVision() ) {
+                // Figure out if this goal is worth it
+                // Check if the goal is within the agent's threshold range for secondary goals
+                bool isViable = true;
+                std::vector<double>* goalState = secondaryGoals->at(i)->getState();
+                for ( int j=0; j < goalRanges->size(); j++ ) {
+                    if ( abs(agentState->at(j) - goalState->at(j)) > goalRanges->at(j) ) {
+                        isViable = false;
+                        break;
+                    }
+                }
+
+                // If it is a viable secondary goal, add it to the list
+                if ( isViable ) {
+                    // Make a SearchNode object we can use to store the g-cost and sort later
+                    double g_cost = calculateWeight(agentState, goalState);
+                    std::weak_ptr<SearchNode> w;
+                    viableGoals.push_back(std::make_shared<SearchNode>(secondaryGoals->at(i), g_cost, g_cost, w));
+                }
+         }
+    }
+
+    // Sort goals by g_costs
+    this->quickSort(&viableGoals, 0, viableGoals.size() - 1);
+
+    if ( LOGGING_LEVEL > 4 ) {
+        TRACE << "Viable Secondary Goals: ";
+        for(int i=0; i < viableGoals.size(); i++) {
+            TRACE << getCoordString(viableGoals.at(i)->node->getCoord()) << " - ";
+        }
+        NEWL;
+    }
+
+    std::shared_ptr<Node> goalNode = this->agent->getPrimaryGoal();
+    anticipatedPath = runAstar(startingNode, goalNode);
+    return goalNode;
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {

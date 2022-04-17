@@ -60,6 +60,15 @@ private:
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     void initializeAgent(std::string agentFile);
 
+    // * findGoal
+    // Description: Determines which node to set as the goal node
+    // Inputs:
+    //      startingNode - The node we would be starting the path from
+    //      anticipatedPath - A reference to a vector to store the anticipated path... We can save the calculated path
+    //                        to the chosen goal here
+    // Output: goalNode - The chosen goal node
+    std::shared_ptr<Node> findGoal(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath);
+
     // * Function: runAstar
     // Description: Runs one interation of A* for the given start node
     // Inputs:
@@ -87,14 +96,14 @@ private:
     // Description: Picks a pivot element from the vector, and moves everything smaller than it to be before the pivot, and everything larger is palced after the pivot
     // Input: Same as quickSort
     // Output: The index of the partition
-    int partition (std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
+    int partition(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high);
 
     // * Function: getPath 
-    // Description: Outputs the resultant path of an individual A* search to a vector
+    // Description: Outputs the resultant path of an individual A* search to a vector, given a closed map of SearchNodes
     std::vector<std::shared_ptr<Node>> getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode);
 
     // * Function: findPath
-    // Description: Helper function for outputPath. Recursively outputs the nodes in the path to the provided vector
+    // Description: Helper function for getPath. Recursively outputs the nodes in the path to the provided vector
     void findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode);
 
     // * Function outputToFile
