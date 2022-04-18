@@ -108,6 +108,9 @@ double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>*
 }
 
 void Simulation::runSearch() {
+    // Start measuring time
+    start = std::chrono::high_resolution_clock::now();
+
     TRACE << "Starting Search..." << ENDL;
 
     // Set the first node to be checked as the agent's start node
@@ -161,7 +164,9 @@ void Simulation::runSearch() {
         }
         startingNode = nextNode;
     }
-    
+    //Timing
+    end = std::chrono::system_clock::now();
+    elapsed_seconds = end - start;
     // Output the final path
     outputToFile();
 }
@@ -327,8 +332,8 @@ void Simulation::outputToFile() {
     // Open the file
     std::ofstream outputStream(this->outputPath);
 
-    // First, output the number of steps the path takes
-    // outputStream << this->finalPath.size();
+    // Amount of Time Taken
+    outputStream <<  elapsed_seconds.count() << "\n";
 
     // Loop through the final path and output each line
     for ( int i=0; i < this->finalPath.size(); i++ ) {

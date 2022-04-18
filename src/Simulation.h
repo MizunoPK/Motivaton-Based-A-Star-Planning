@@ -7,6 +7,7 @@
 #include "StateSpace.h"
 #include "Node.h"
 #include "Agent.h"
+#include <chrono> //Time Measuring
 
 class Simulation {
     // This is a helper structure used only by the search
@@ -39,6 +40,7 @@ class Simulation {
             agentState = as;
             anticipatedPath = ap;
         }
+
     };
 
 private:
@@ -47,6 +49,7 @@ private:
     std::shared_ptr<Agent> agent;
     std::string outputPath;
     std::vector<std::shared_ptr<FinalPathNode>> finalPath; 
+
 
     // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
@@ -113,6 +116,12 @@ public:
     // * Function: runSearch 
     // Description: Runs the A* search on the initialized data
     void runSearch();
+    // Time
+    // Using time point and system_clock
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+  
+    std::chrono::duration<double> elapsed_seconds;
+    //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 };
 
 
