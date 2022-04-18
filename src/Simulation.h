@@ -31,14 +31,15 @@ class Simulation {
     // Used to store information about each node in the final path
     // This information is used by the outputToFile function
     struct FinalPathNode {
-        std::shared_ptr<Node> node;
+        std::shared_ptr<Node> node, goalNode;
         std::vector<double> agentState;
         std::vector<std::shared_ptr<Node>> anticipatedPath;
 
-        FinalPathNode(std::shared_ptr<Node> n, std::vector<double> as, std::vector<std::shared_ptr<Node>> ap) {
+        FinalPathNode(std::shared_ptr<Node> n, std::vector<double> as, std::vector<std::shared_ptr<Node>> ap, std::shared_ptr<Node> g) {
             node = n;
             agentState = as;
             anticipatedPath = ap;
+            goalNode = g;
         }
 
     };
@@ -67,8 +68,9 @@ private:
     // Description: Gets the best possible path forward from the given start node
     // Inputs:
     //      startingNode - The node we would be starting the path from
-    // Output: anticipatedPath - A vector of nodes making up the anticipated path
-    std::vector<std::shared_ptr<Node>> getPath(std::shared_ptr<Node> startingNode);
+    //      &anticiptedPath - A reference to the vector we'll be storing the anticipatedPath. This allows us to functionally return two things
+    // Output: goalNode - Return the secondary goal that was chosen, or return the p-goal if no s-goal was chosen
+    std::shared_ptr<Node> getPath(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath);
 
     // * Function: runAstar
     // Description: Runs one interation of A* for the given start node

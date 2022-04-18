@@ -139,14 +139,15 @@ void Simulation::runSearch() {
 
         // Get the path from the new start node to a goal
         // IMPORTANT: this path is stored backwards
-        std::vector<std::shared_ptr<Node>> anticipatedPath = this->getPath(startingNode);
+        std::vector<std::shared_ptr<Node>> anticipatedPath;
+        std::shared_ptr<Node> goalNode = this->getPath(startingNode, anticipatedPath);
 
         if (anticipatedPath.size() == 0) {
             FATAL << "COULD NOT FIND ANY POTENTIAL PATH TO THE PRIMARY GOAL... EXITING SIMULATION" << ENDL;
             exit(-1); 
         }
 
-        TRACE << "Found a potential path to goal node " << getCoordString(anticipatedPath.at(0)->getCoord()) << ENDL;
+        TRACE << "Found a potential path to goal node " << getCoordString(goalNode->getCoord()) << ENDL;
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
@@ -158,7 +159,7 @@ void Simulation::runSearch() {
 
         // Add the node to the Final Path
         TRACE << "Adding node " << getCoordString(startingNode->getCoord()) << " to final path..." << ENDL;
-        this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath) );
+        this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath, goalNode) );
         startingNode->setTraversed(true);
 
         // if we reached the primary goal, stop looping
@@ -191,7 +192,7 @@ void Simulation::runSearch() {
 }
 
 
-std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> startingNode) {
+std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath) {
     DEEP_TRACE << "getPath called... Beginning search for secondary goals..." << ENDL;
     // Get useful info
     std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
@@ -287,11 +288,12 @@ std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> sta
                 TRACE << "Found a viable secondary goal (" << getCoordString(viableGoals.at(i)->node->getCoord()) << ")... Returning path from start node to primary goal, that runs through this secondary goal" << ENDL;
 
                 // merge the two paths we found into one path from start node to p-goal
+                anticipatedPath = s_to_p_path;
                 for ( int i=1; i < sGoalPath.size(); i++  ) {
-                    s_to_p_path.push_back(sGoalPath.at(i));
+                    anticipatedPath.push_back(sGoalPath.at(i));
                 }
 
-                return s_to_p_path;
+                return viableGoals.at(i)->node;
             }
             // If no path exists, move on and check the next s-goal
             else {
@@ -309,7 +311,8 @@ std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> sta
     // If we made it this far, then there is no secondary goals to go to
     // So, get the path to the primary goal
     DEEP_TRACE << "No viable secondary goals found... Finding path to primary goal..." << ENDL;
-    return runAstar(startingNode, this->agent->getPrimaryGoal());
+    anticipatedPath = runAstar(startingNode, this->agent->getPrimaryGoal());
+    return this->agent->getPrimaryGoal();
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
@@ -517,6 +520,9 @@ void Simulation::outputToFile() {
                 outputStream << "-";
             }
         }
+
+        // Output the goal node
+        outputStream << " " << getCoordString(fpn->goalNode->getCoord());
     }
 
     outputStream.close();

@@ -28,4 +28,6 @@ Input File(s) Structure:
    6) <State 1 Threshold>,<State 2 Threshold>,...,<State n Threshold>
 
 Output File Structure:
-<x,y> <agent internal state> <potential path from this node>
+<x,y> <agent internal state> <potential path from this node to the primary goal> <chosen goal node*>
+
+*the s-goal used to make the path, or the p-goal if no s-goal was chosen
