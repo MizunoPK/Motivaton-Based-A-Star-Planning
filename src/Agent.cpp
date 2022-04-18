@@ -3,11 +3,13 @@
 #include "util.h"
 #include <iostream>
 
-Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals) {
+Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals, int vision, std::vector<double>& goalRanges) {
     this->state = state;
     this->startingNode = startingNode;
     this->primaryGoal = primaryGoal;
     this->secondaryGoals = secondaryGoals;
+    this->vision = vision;
+    this->goalRanges = goalRanges;
 }
 
 void Agent::updateState(std::vector<double>* modifiers) {
@@ -29,6 +31,8 @@ std::vector<double>* Agent::getState() {return &(this->state);}
 std::shared_ptr<Node> Agent::getStartingNode() {return this->startingNode;}
 std::shared_ptr<Node> Agent::getPrimaryGoal() {return this->primaryGoal;}
 std::vector<std::shared_ptr<Node>>* Agent::getSecondaryGoals() {return &(this->secondaryGoals);}
+int Agent::getVision() {return this->vision;}
+std::vector<double>* Agent::getGoalRanges() {return &(this->goalRanges);}
 
 // * Debugging Functions:
 void Agent::printAgentInfo() {
@@ -53,5 +57,11 @@ void Agent::printAgentInfo() {
             }
         }
         std::cout << "]" << ENDL;
+
+        DEBUG << "Vision Range: " << this->vision << ENDL;
+
+        DEBUG << "Secondary Goal Ranges: ";
+        printDoubleVector(getGoalRanges());
+        NEWL; 
     }
 }

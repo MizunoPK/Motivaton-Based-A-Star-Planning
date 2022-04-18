@@ -13,7 +13,13 @@ void StateSpace::setNode(std::string key, std::shared_ptr<Node> val) {
 }
  
 std::shared_ptr<Node> StateSpace::getNode(std::vector<int> nodeCoord) {
-    return this->graph[getCoordString(&nodeCoord)];
+    std::string nodeStr = getCoordString(&nodeCoord);
+    if ( this->graph.find(nodeStr) == this->graph.end() ) {
+        FATAL << "Tried to get node " << nodeStr << " which does not exist in the graph. Make sure the node was defined in the graph file." << ENDL;
+        exit(-1);
+    }
+
+    return this->graph[nodeStr];
 }
 
 void StateSpace::addNeighbor(std::vector<std::shared_ptr<Node>>& adjacencies, std::vector<int> neighbor) {

@@ -81,9 +81,17 @@ void Simulation::initializeAgent(std::string agentFile) {
                 secondaryGoals.push_back(goal);
             }
         }
+
+        // Fifth Line is Secondary Goal Vision Range
+        std::getline(agentFileStream, fileLine);
+        int vision = stoi(fileLine);
+
+        // Sixth Line is the Secondary Goal State Ranges
+        std::getline(agentFileStream, fileLine);
+        std::vector<double> goalRanges = splitDoubleList(fileLine);
         
         // Make the agent
-        agent = std::make_shared<Agent>(actorState, startingNode, primaryGoal, secondaryGoals);
+        agent = std::make_shared<Agent>(actorState, startingNode, primaryGoal, secondaryGoals, vision, goalRanges);
         agentFileStream.close();
     }
     else {
@@ -92,7 +100,7 @@ void Simulation::initializeAgent(std::string agentFile) {
     }
 }
 
-double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>* v2) {
+double Simulation::calculateGCost(std::vector<double>* v1, std::vector<double>* v2) {
     // Currently, the weight is being calculated based on the difference between each corresponding state
     // Example:
     //      v1=[10, 0] and v2=[3, 3] have a difference vector of [7, 3]
@@ -105,6 +113,14 @@ double Simulation::calculateWeight(std::vector<double>* v1, std::vector<double>*
     // TODO Scale the weight down so it is comparable to the h_cost
 
     return weight;
+}
+
+double Simulation::calculateHCost(std::shared_ptr<Node> n1, std::shared_ptr<Node> n2) {
+    std::vector<int>* n1Coord = n1->getCoord();
+    std::vector<int>* n2Coord = n2->getCoord();
+    double h_cost = abs(n1Coord->at(0) - n2Coord->at(0)) + abs(n1Coord->at(1) - n2Coord->at(1));
+
+    return h_cost;
 }
 
 void Simulation::runSearch() {
@@ -123,12 +139,21 @@ void Simulation::runSearch() {
     // Loop until we reach the goal
     while(true) {
         TRACE << "Getting Anticipated Path from Starting Node " 
-            << getCoordString(startingNode->getCoord()) << " to goal node " 
-            << getCoordString(goalNode->getCoord()) << ENDL;
+            << getCoordString(startingNode->getCoord()) << ENDL;
 
-        // Get the path from the new start node to the goal
+        // Get the path from the new start node to a goal
         // IMPORTANT: this path is stored backwards
-        std::vector<std::shared_ptr<Node>> anticipatedPath = runAstar(startingNode, goalNode);
+        std::vector<std::shared_ptr<Node>> anticipatedPath = this->getPath(startingNode);
+
+        if (anticipatedPath.size() == 0) {
+            FATAL << "COULD NOT FIND ANY POTENTIAL PATH TO THE PRIMARY GOAL... EXITING SIMULATION" << ENDL;
+            exit(-1); 
+        }
+
+        // Get the goal node
+        goalNode = anticipatedPath.at(0);
+
+        TRACE << "Found a potential path to goal node " << getCoordString(goalNode->getCoord()) << ENDL;
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
@@ -141,6 +166,7 @@ void Simulation::runSearch() {
         // Add the node to the Final Path
         TRACE << "Adding node " << getCoordString(startingNode->getCoord()) << " to final path..." << ENDL;
         this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath) );
+        startingNode->setTraversed(true);
 
         // if we reached the goal, stop looping
         if ( startingNode == goalNode ) {
@@ -152,7 +178,7 @@ void Simulation::runSearch() {
         // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
         std::shared_ptr<Node> nextNode = anticipatedPath.at(anticipatedPath.size() - 2);
         
-        // if we change the agent's state, perform the change and loop again
+        // if we change the agent's state, perform the change
         if ( nextNode->getCanChangeAgent() ) {
             this->agent->updateState(nextNode->getModifiers());
 
@@ -171,6 +197,122 @@ void Simulation::runSearch() {
     outputToFile();
 }
 
+
+std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> startingNode) {
+    DEEP_TRACE << "getPath called... Beginning search for secondary goals..." << ENDL;
+    // Get useful info
+    std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
+    std::vector<double>* goalRanges = this->agent->getGoalRanges();
+    std::vector<double>* agentState = this->agent->getState();
+    std::vector<int>* startingNodeCoord = startingNode->getCoord();
+
+    // Compile a list of secondary goals within vision range
+    std::vector<std::shared_ptr<SearchNode>> viableGoals;
+    for ( int i=0; i < secondaryGoals->size(); i++ ) {
+        std::vector<int>* nodeCoord = secondaryGoals->at(i)->getCoord();
+        // Currently, the vision is checking all nodes in the circle around the starting node
+        // TODO Modify this to have a more limitted range of vision behind the agent
+        if ( abs(nodeCoord->at(0) - startingNodeCoord->at(0)) <= this->agent->getVision()
+            && abs(nodeCoord->at(1) - startingNodeCoord->at(1)) <= this->agent->getVision()
+            && !secondaryGoals->at(i)->getTraversed() ) {
+                // Figure out if this goal is worth it
+                // Check if the goal is within the agent's threshold range for secondary goals
+                bool isViable = true;
+                std::vector<double>* goalState = secondaryGoals->at(i)->getState();
+                for ( int j=0; j < goalRanges->size(); j++ ) {
+                    if ( abs(agentState->at(j) - goalState->at(j)) > goalRanges->at(j) ) {
+                        isViable = false;
+                        break;
+                    }
+                }
+
+                // If it is a viable secondary goal, add it to the list
+                if ( isViable ) {
+                    // Make a SearchNode object we can use to store the g-cost and sort later
+                    double g_cost = calculateGCost(agentState, goalState);
+                    std::weak_ptr<SearchNode> w;
+                    viableGoals.push_back(std::make_shared<SearchNode>(secondaryGoals->at(i), g_cost, g_cost, w));
+                }
+         }
+    }
+
+    // Sort goals by g_costs
+    // This will sort from highest cost to lowest cost
+    this->quickSort(&viableGoals, 0, viableGoals.size() - 1);
+
+    if ( LOGGING_LEVEL > 4 ) {
+        if ( viableGoals.size() > 0 ) {
+            TRACE << "Viable Secondary Goals: ";
+            for(int i=0; i < viableGoals.size(); i++) {
+                TRACE << getCoordString(viableGoals.at(i)->node->getCoord()) << " - ";
+            }
+            NEWL;
+        }
+        else {
+            TRACE << "No viable goals within vision range" << ENDL;
+        }
+    }
+
+    // Get the heuristic distance from the start node to primary goal
+    // TODO Consider whether to keep using h cost here or compare actual distances
+    double pGoalHCost = this->calculateHCost(startingNode, this->agent->getPrimaryGoal());
+
+    // Loop through the potential secondary goals, from most viable to least viable
+    // If the primary goal is better than the goal, pursue the primary goal instead
+    // If there is a possible path from the start node, to the secondary goal, to the primary goal, then
+    //      choose the secondary goal as the temporary goal
+    for ( int i = viableGoals.size() - 1; i >= 0; i-- ) {
+        // Get the heuristic distance from the start node to this secondary goal
+        double sGoalHCost = this->calculateHCost(startingNode, viableGoals.at(i)->node);
+
+        // If the primary goal looks to be closer: just pursue that
+        if ( pGoalHCost <= sGoalHCost ) {
+            TRACE << "Primary goal is closer than secondary goals... Will pursue primary goal..." << ENDL;
+            break;
+        }
+
+        // Check if there is a possible path from the start node to primary goal, through the secondary goal
+        std::vector<std::shared_ptr<Node>> sGoalPath = runAstar(startingNode, viableGoals.at(i)->node);
+        if ( sGoalPath.size() > 0 ) {
+            // Temporarily mark the path up to the secondary goal as "traversed", so that we can simulate 
+            //      What the path from secondary goal to primary goal may look like
+            // Don't set the secondary goal as traversed~ since that will be treated as the next start node
+            for ( int j = sGoalPath.size() - 1; j > 0; j++ ) {
+                sGoalPath.at(j)->setTraversed(true);
+            }
+
+            // Get the path from s-goal to p-goal
+            std::vector<std::shared_ptr<Node>> s_to_p_path = runAstar(viableGoals.at(i)->node, this->agent->getPrimaryGoal());
+
+            // Set the nodes in the start -> sgoal path back to being untraversed
+            for ( int j = sGoalPath.size() - 1; j > 0; j++ ) {
+                sGoalPath.at(j)->setTraversed(false);
+            }
+
+            // If a path exists from s-goal to p-goal, select this s-goal as the next destination
+            if ( s_to_p_path.size() > 0 ) {
+                TRACE << "Found a viable secondary goal (" << getCoordString(viableGoals.at(i)->node->getCoord()) << ")... Returning path from start node to this secondary goal" << ENDL;
+                return sGoalPath;
+            }
+            // If no path exists, move on and check the next s-goal
+            else {
+                DEEP_TRACE << "No path exists from secondary node " << getCoordString(viableGoals.at(i)->node->getCoord()) << " to primary goal " << ENDL;
+                continue;
+            }
+        }
+        // If we couldn't get to the secondary goal... skip to the next secondary goal
+        else {
+            DEEP_TRACE << "No path exists from start node " << getCoordString(startingNode->getCoord()) << " to secondary goal " << getCoordString(viableGoals.at(i)->node->getCoord()) << ENDL;
+            continue;
+        }
+    }
+
+    // If we made it this far, then there is no secondary goals to go to
+    // So, get the path to the primary goal
+    DEEP_TRACE << "No viable secondary goals found... Finding path to primary goal..." << ENDL;
+    return runAstar(startingNode, this->agent->getPrimaryGoal());
+}
+
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
 
     // define OPEN - priority queue of nodes ready to be evaluated
@@ -187,6 +329,13 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
 
     // loop through the search
     while (true) {
+        // If there's nothing in the open queue: exit the function
+        // This means that there is no possible way to get to the goal
+        if ( openQueue.size() == 0 ) {
+            DEEP_TRACE << "Open queue is empty... Searching is no longer possible. Exiting A*..." << ENDL;
+            return {};
+        }
+
         if ( LOGGING_LEVEL > 5 ) {
             std::string openString = "";
             for ( int i = openQueue.size() - 1; i >= 0; i-- ) {
@@ -216,18 +365,21 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
             // if neighbor is in CLOSED
             if ( closedMap.find(neighbor) != closedMap.end() ) {
                 // skip to the next neighbor
-                DEEP_TRACE << "This neighbor is already in CLOSED... Skipping" << ENDL;
+                DEEP_TRACE << "This neighbor is already in CLOSED... Skipping..." << ENDL;
+                continue;
+            }
+            // if neighbor has already been traversed
+            if ( neighbor->getTraversed() ) {
+                DEEP_TRACE << "Neighbor has already been traversed to... Skipping..." << ENDL;
                 continue;
             }
 
             // Calculate the cost of the path to this neighbor
             // g_cost = distance from starting node
-            double g_cost = current->g_cost + calculateWeight(agent->getState(), neighbor->getState());
+            double g_cost = current->g_cost + calculateGCost(agent->getState(), neighbor->getState());
             DEEP_TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
-            std::vector<int>* neighborCoord = neighbor->getCoord();
-            std::vector<int>* goalCoord = goalNode->getCoord();
-            double h_cost = abs(neighborCoord->at(0) - goalCoord->at(0)) + abs(neighborCoord->at(1) - goalCoord->at(1));
+            double h_cost = this->calculateHCost(neighbor, goalNode);
             DEEP_TRACE << "H Cost: " << h_cost << ENDL;
             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
             double f_cost = h_cost + g_cost;
@@ -266,7 +418,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
     }
 
     // Output the results of the search
-    return this->getPath(&closedMap, startingNode, goalNode);
+    return this->derivePathFromClosed(&closedMap, startingNode, goalNode);
 }
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
@@ -299,22 +451,22 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
     return (i + 1);
 }
 
-std::vector<std::shared_ptr<Node>> Simulation::getPath(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
+std::vector<std::shared_ptr<Node>> Simulation::derivePathFromClosed(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
     std::vector<std::shared_ptr<Node>> backwardsPath;
     backwardsPath.push_back(goalNode);
     if ( startingNode != goalNode ) {
-        findPath(&backwardsPath, (*closedMap)[goalNode]->prevNode, startingNode);
+        recurseThroughSearchNode(&backwardsPath, (*closedMap)[goalNode]->prevNode, startingNode);
     }
     return backwardsPath;
 }
 
-void Simulation::findPath(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode) {
+void Simulation::recurseThroughSearchNode(std::vector<std::shared_ptr<Node>>* path, std::weak_ptr<SearchNode> pathNode, std::shared_ptr<Node> startingNode) {
     // Make sure the SearchNode the weak pointer to is pointing to still exists
     if ( auto tempSharedPointer = pathNode.lock() ) {
         path->push_back(tempSharedPointer->node);
         // Recursive Case: There is more to the path to add to the stack
         if ( tempSharedPointer->node != startingNode ) {
-            findPath(path, tempSharedPointer->prevNode, startingNode);
+            recurseThroughSearchNode(path, tempSharedPointer->prevNode, startingNode);
         }
     }
     else {
