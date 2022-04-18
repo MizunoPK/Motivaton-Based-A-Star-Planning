@@ -129,10 +129,6 @@ void Simulation::runSearch() {
     // Set the first node to be checked as the agent's start node
     std::shared_ptr<Node> startingNode = this->agent->getStartingNode();
 
-    // Init a node to track where the agent is currently moving towards
-    // This will be either the primary goal or a secondary goal 
-    std::shared_ptr<Node> goalNode = this->agent->getPrimaryGoal();
-
     // Loop until we reach the goal
     while(true) {
         TRACE << "Getting Anticipated Path from Starting Node " 
@@ -147,10 +143,7 @@ void Simulation::runSearch() {
             exit(-1); 
         }
 
-        // Get the goal node
-        goalNode = anticipatedPath.at(0);
-
-        TRACE << "Found a potential path to goal node " << getCoordString(goalNode->getCoord()) << ENDL;
+        TRACE << "Found a potential path to goal node " << getCoordString(anticipatedPath.at(0)->getCoord()) << ENDL;
 
         if ( LOGGING_LEVEL > 4 ) {
             TRACE << "Anticipated Path: ";
@@ -165,8 +158,8 @@ void Simulation::runSearch() {
         this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath) );
         startingNode->setTraversed(true);
 
-        // if we reached the goal, stop looping
-        if ( startingNode == goalNode ) {
+        // if we reached the primary goal, stop looping
+        if ( startingNode == this->agent->getPrimaryGoal() ) {
             TRACE << "We have found the goal! Breaking search..." << ENDL;
             break;
         }
@@ -272,7 +265,7 @@ std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> sta
             // Temporarily mark the path up to the secondary goal as "traversed", so that we can simulate 
             //      What the path from secondary goal to primary goal may look like
             // Don't set the secondary goal as traversed~ since that will be treated as the next start node
-            for ( int j = sGoalPath.size() - 1; j > 0; j++ ) {
+            for ( int j = sGoalPath.size() - 1; j > 0; j-- ) {
                 sGoalPath.at(j)->setTraversed(true);
             }
 
@@ -280,14 +273,20 @@ std::vector<std::shared_ptr<Node>> Simulation::getPath(std::shared_ptr<Node> sta
             std::vector<std::shared_ptr<Node>> s_to_p_path = runAstar(viableGoals.at(i)->node, this->agent->getPrimaryGoal());
 
             // Set the nodes in the start -> sgoal path back to being untraversed
-            for ( int j = sGoalPath.size() - 1; j > 0; j++ ) {
+            for ( int j = sGoalPath.size() - 1; j > 0; j-- ) {
                 sGoalPath.at(j)->setTraversed(false);
             }
 
             // If a path exists from s-goal to p-goal, select this s-goal as the next destination
             if ( s_to_p_path.size() > 0 ) {
-                TRACE << "Found a viable secondary goal (" << getCoordString(viableGoals.at(i)->node->getCoord()) << ")... Returning path from start node to this secondary goal" << ENDL;
-                return sGoalPath;
+                TRACE << "Found a viable secondary goal (" << getCoordString(viableGoals.at(i)->node->getCoord()) << ")... Returning path from start node to primary goal, that runs through this secondary goal" << ENDL;
+
+                // merge the two paths we found into one path from start node to p-goal
+                for ( int i=1; i < sGoalPath.size(); i++  ) {
+                    s_to_p_path.push_back(sGoalPath.at(i));
+                }
+
+                return s_to_p_path;
             }
             // If no path exists, move on and check the next s-goal
             else {
