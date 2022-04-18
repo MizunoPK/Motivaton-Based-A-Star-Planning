@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # #Imports
+from cProfile import label
 import os
 from matplotlib import pyplot as plt, patches
 from matplotlib.collections import PatchCollection 
@@ -28,6 +29,8 @@ secondaryGoals = []
 graphSize = 1
 stepCount = 0
 currPos = []
+goalsR = 0
+t = 0
 ######################################################################################################################
 # #Get File Names
 outFile = input("Please Enter an Output File (i.e. 'example.txt'): ")
@@ -37,8 +40,9 @@ agentFile = input("Please Enter an Agent File (i.e. 'basic1-agent.txt'): ")
 os.chdir("..")
 os.chdir(os.path.join(os.getcwd(), 'outputs'))
 with open(outFile) as o:
+    t = o.readline().rstrip() #Reads Time to Traverse 
     for line in o:
-        i = 1        
+        i = 1       
         for word in line.split():
             if(i == 1):
                 pos.append(word)
@@ -50,12 +54,14 @@ with open(outFile) as o:
             i += 1
 ######################################################################################################################
 os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'inputs/can-change')) ####ChangeFolder Based on File Location####
+os.chdir(os.path.join(os.getcwd(), 'inputs/no-change')) ####ChangeFolder Based on File Location####
 with open(agentFile) as a:
     agentStartState = a.readline().rstrip()
     startpos = a.readline().rstrip()
     primaryGoal = a.readline().rstrip()
     secondaryGoals = a.readline().rstrip()
+    #Doesn't Read In Scalar Vision Value
+    #Doesn't Read In State Thresholds
 ######################################################################################################################
 with open(graphFile) as g:
     xminMax = g.readline().rstrip();
@@ -106,15 +112,31 @@ ax.add_artist(s)
 x,y = setCirclepos(int(primaryGoal[0]), int(primaryGoal[2]))
 e=Circle((x, y), .5,color='green')
 ax.add_artist(e)
-#
+#Set Secondary Goals
+if(secondaryGoals != 'NULL'):
+    print(secondaryGoals)
+    for goal in secondaryGoals.split("-"):
+        x,y = setCirclepos(int(goal[0]), int(goal[2]))
+        e=Circle((x, y), .5,color='orange')
+        ax.add_artist(e)
 blue_patch = mpatches.Patch(color='blue', label='Start Position')
-# fig.legend(handles=[blue_patch])
 red_patch = mpatches.Patch(color='red', label='Path')
-# fig.legend(handles=[red_patch])
 black_patch = mpatches.Patch(color='black', label='Current/Past Positions')
-# fig.legend(handles=[black_patch])
 green_patch = mpatches.Patch(color='green', label='Goal Position')
-fig.legend(handles=[blue_patch, red_patch, black_patch, green_patch],loc='lower left', bbox_to_anchor=(0.65, 0.7, 0.5, 0.5))
+orange_patch = mpatches.Patch(color='orange', label='Secondary Goals')
+
+for x in pos:
+    if(x == primaryGoal):
+        goalsR+=1
+    if(secondaryGoals != 'NULL'):
+        for s in secondaryGoals.split("-"):
+            if(x == s):
+                goalsR+=1
+
+fig.legend(handles=[blue_patch, red_patch, black_patch, green_patch, orange_patch],loc='lower left', bbox_to_anchor=(0.65, 0.65, 0.5, 0.5))
+ax.text(-.5,-.5,('Number of Nodes Traversed: ' + str(len(pos))),horizontalalignment='left',verticalalignment='center')
+ax.text(-.5,-.7,('Number of Goals Reached ' + str(goalsR)),horizontalalignment='left',verticalalignment='center')
+ax.text(-.5,-.9,('Time to Traverse ' + str(t)),horizontalalignment='left',verticalalignment='center')
 
 df = pd.DataFrame([[str(agentStartState)]], index=[0], columns=['A'])
 column_labels=["Agent State"]
@@ -136,18 +158,10 @@ while True:
 
     # Draw the boxes
     ax.imshow(data, interpolation='none', extent=[0, graphSize, 0, graphSize], zorder=0)
-    # x,y = setCirclepos(int(currPos[0]), int(currPos[2]))
-    # current = Circle((x, y), .5,color='black')
-    # currPatches.append(current)
-
-    # for x in currPatches:
-    #     ax.add_artist(x)
     
     pathPatches = []
     for x in range(len(path[i])):
         temp = path[i][x]
-        print(temp)
-        print(temp[0])
         x,y = setCirclepos(int(temp[0]), int(temp[2]))
         circle = Circle((x, y), .5,color='red')
         pathPatches.append(circle)
@@ -172,7 +186,10 @@ while True:
     row_labels.append("Iteration" + str(i))
     df2 = pd.DataFrame([[str(agentStates[i])]], index=[i+1], columns=['A'])
     df = df.append(df2)
-    currPos = path[i][1] ####
+    if(len(path[i])==1):
+        currPos = path[i][0]
+    else:
+        currPos = path[i][1] ####
     i += 1
     # Drawing updated values
     fig.canvas.draw()
@@ -183,11 +200,9 @@ while True:
     for x in pathPatches:
         x.remove()
     for x in currPatches:
-        print(x)
         x.remove()
     # Drawing updated values
     fig.canvas.draw()
-
     fig.canvas.flush_events()
     time.sleep(.5)
 ###################################Draw Weights Info###########################################
