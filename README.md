@@ -16,9 +16,10 @@ Check Outputs:
 
 Input File(s) Structure:
 1) GraphDefinition:
-   1) <Min X Value>,<Max X Value>
-   2) <Min Y Value>,<Max Y Value>
-   3...) <x>,<y> <internal state> <change value>
+   1) <Min State Value>,<Max State Value>
+   2) <Min X Value>,<Max X Value>
+   3) <Min Y Value>,<Max Y Value>
+   4...) <x>,<y> <internal state> <change value>
 3) AgentDefinition:
    1) <Starting Internal State>
    2) Starting Coordinate

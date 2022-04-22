@@ -110,6 +110,7 @@ double Simulation::calculateGCost(std::vector<double>* v1, std::vector<double>* 
         weight += abs(v1->at(i) - v2->at(i));
     }
     
+    // TODO  Prioritize a state
     // TODO Scale the weight down so it is comparable to the h_cost
 
     return weight;
