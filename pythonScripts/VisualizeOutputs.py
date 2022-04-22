@@ -9,6 +9,7 @@ import matplotlib.patches as mpatches
 import pandas as pd  
 import time
 import numpy as np 
+import sys
 #Initialize Lists:
 #Output Imports:
 pos = []
@@ -54,7 +55,7 @@ with open(outFile) as o:
             i += 1
 ######################################################################################################################
 os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'inputs/no-change')) ####ChangeFolder Based on File Location####
+os.chdir(os.path.join(os.getcwd(), 'inputs/s-goals')) ####ChangeFolder Based on File Location####
 with open(agentFile) as a:
     agentStartState = a.readline().rstrip()
     startpos = a.readline().rstrip()
@@ -163,7 +164,16 @@ while True:
     for x in range(len(path[i])):
         temp = path[i][x]
         x,y = setCirclepos(int(temp[0]), int(temp[2]))
-        circle = Circle((x, y), .5,color='red')
+        if(secondaryGoals != 'NULL'):
+            for goal in secondaryGoals.split("-"):
+                x2,y2 = setCirclepos(int(goal[0]), int(goal[2]))
+                if(x==x2 and y==y2):
+                    circle = Circle((x, y), .5,color='red',ec='orange',linewidth=15)
+                    pathPatches.append(circle)        
+        if(temp == primaryGoal):
+            circle = Circle((x, y), .5,color='red',ec='green',linewidth=7)
+        else:
+            circle = Circle((x, y), .5,color='red')
         pathPatches.append(circle)
 
     for x in pathPatches:
