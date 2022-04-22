@@ -5,6 +5,8 @@
 #include <vector>
 
 Simulation::Simulation(std::string graphFile, std::string agentFile, std::string outputPath) {
+    FUNCTION_TRACE << "Simulation constructor called" << ENDL;
+
     initializeStateSpace(graphFile);
     initializeAgent(agentFile);
 
@@ -16,6 +18,8 @@ Simulation::Simulation(std::string graphFile, std::string agentFile, std::string
 }
 
 void Simulation::initializeStateSpace(std::string graphFile) {
+    FUNCTION_TRACE << "Simulation::initializeStateSpace called" << ENDL;
+
     // Process the Graph File
     std::fstream graphFileStream(graphFile);
     if (graphFileStream.is_open()) {
@@ -58,6 +62,8 @@ void Simulation::initializeStateSpace(std::string graphFile) {
 }
 
 void Simulation::initializeAgent(std::string agentFile) {
+    FUNCTION_TRACE << "Simulation::initializeAgent called" << ENDL;
+
     // Process the Agent File
     std::fstream agentFileStream(agentFile);
     if (agentFileStream.is_open()) {
@@ -105,6 +111,8 @@ void Simulation::initializeAgent(std::string agentFile) {
 }
 
 double Simulation::calculateGCost(std::vector<double>* v1, std::vector<double>* v2) {
+    FUNCTION_TRACE << "Simulation::calculateGCost called" << ENDL;
+
     // Currently, the weight is being calculated based on the difference between each corresponding state
     // Example:
     //      v1=[10, 0] and v2=[3, 3] have a difference vector of [7, 3]
@@ -121,6 +129,8 @@ double Simulation::calculateGCost(std::vector<double>* v1, std::vector<double>* 
 }
 
 double Simulation::calculateHCost(std::shared_ptr<Node> n1, std::shared_ptr<Node> n2) {
+    FUNCTION_TRACE << "Simulation::calculateHCost called" << ENDL;
+
     std::vector<int>* n1Coord = n1->getCoord();
     std::vector<int>* n2Coord = n2->getCoord();
     double h_cost = abs(n1Coord->at(0) - n2Coord->at(0)) + abs(n1Coord->at(1) - n2Coord->at(1));
@@ -129,6 +139,8 @@ double Simulation::calculateHCost(std::shared_ptr<Node> n1, std::shared_ptr<Node
 }
 
 void Simulation::runSearch() {
+    FUNCTION_TRACE << "Simulation::runSearch called" << ENDL;
+
     // Start measuring time
     start = std::chrono::high_resolution_clock::now();
 
@@ -162,6 +174,19 @@ void Simulation::runSearch() {
             NEWL;
         }
 
+        // If there are no secondary goals, or we have a vision value of 0... Then don't bother running A* again
+        // TODO For the game application, change this to only care about vision
+        if ( this->agent->getSecondaryGoals()->size() == 0 || this->agent->getVision() == 0 ) {
+            INFO << "No need to run A* again... Returning this as the final path" << ENDL;
+            // Add all nodes to the final path
+            for ( int i = anticipatedPath.size() - 1; i >= 0; i--  ) {
+                this->finalPath.push_back( std::make_shared<FinalPathNode>(anticipatedPath.at(i), *(this->agent->getState()), anticipatedPath, goalNode) );
+            }
+
+            // Exit the loop
+            break;
+        }
+
         // Add the node to the Final Path
         TRACE << "Adding node " << getCoordString(startingNode->getCoord()) << " to final path..." << ENDL;
         this->finalPath.push_back( std::make_shared<FinalPathNode>(startingNode, *(this->agent->getState()), anticipatedPath, goalNode) );
@@ -172,6 +197,9 @@ void Simulation::runSearch() {
             TRACE << "We have found the goal! Breaking search..." << ENDL;
             break;
         }
+
+        // if we reached a secondary goal, remove the goal from the list of s-goals
+        this->agent->deleteSecondaryGoal(startingNode);
 
         // Get the first node in the path
         // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
@@ -198,6 +226,8 @@ void Simulation::runSearch() {
 
 
 std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath) {
+    FUNCTION_TRACE << "Simulation::getPath called" << ENDL;
+
     DEEP_TRACE << "getPath called... Beginning search for secondary goals..." << ENDL;
     // Get useful info
     std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
@@ -321,6 +351,7 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
+    FUNCTION_TRACE << "Simulation::runAstar called" << ENDL;
 
     // define OPEN - priority queue of nodes ready to be evaluated
     std::vector<std::shared_ptr<SearchNode>> openQueue;
@@ -429,6 +460,9 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
 }
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
+    FUNCTION_TRACE << "Simulation::quicksort called" << ENDL;
+    // TODO: Check for ties on f_costs... If there are ties, then sort based on the g cost... If there are still ties on g_cost, then sort based on the prioritized agent state
+
     if ( low < high ) {
       /* p is partitioning index, vector[p] is now
         at right place */
@@ -459,6 +493,7 @@ int Simulation::partition(std::vector<std::shared_ptr<SearchNode>>* vector, int 
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::derivePathFromClosed(std::unordered_map<std::shared_ptr<Node>, std::shared_ptr<SearchNode>>* closedMap, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
+    FUNCTION_TRACE << "Simulation::derivePathFromClosed called" << ENDL;
     std::vector<std::shared_ptr<Node>> backwardsPath;
     backwardsPath.push_back(goalNode);
     if ( startingNode != goalNode ) {
@@ -486,6 +521,7 @@ void Simulation::recurseThroughSearchNode(std::vector<std::shared_ptr<Node>>* pa
 }
 
 void Simulation::outputToFile() {
+    FUNCTION_TRACE << "Simulation::outputToFile called" << ENDL;
     TRACE << "Outputting to file: " << this->outputPath << ENDL;
 
     // Open the file

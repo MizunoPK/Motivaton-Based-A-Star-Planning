@@ -2,6 +2,7 @@
 #include "Agent.h"
 #include "util.h"
 #include <iostream>
+#include <algorithm>
 
 Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals, int vision, std::vector<double>& goalRanges) {
     this->state = state;
@@ -23,6 +24,14 @@ void Agent::updateState(std::vector<double>* modifiers) {
             std::cout << this->state.at(i) << ",";
         }
         NEWL;
+    }
+}
+
+void Agent::deleteSecondaryGoal(std::shared_ptr<Node> node) {
+    auto it = find(this->secondaryGoals.begin(), this->secondaryGoals.end(), node);
+    if ( it != this->secondaryGoals.end() ) {
+        TRACE << "A secondary goal has been reached... Deleting from list of secondary goals" << ENDL;
+        this->secondaryGoals.erase(it);
     }
 }
 

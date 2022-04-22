@@ -11,5 +11,6 @@ inline int LOGGING_LEVEL;
 #define DEBUG   if (LOGGING_LEVEL > 3) std::cout  << "DEBUG: "
 #define TRACE   if (LOGGING_LEVEL > 4) std::cout  << "TRACE: "
 #define DEEP_TRACE   if (LOGGING_LEVEL > 5) std::cout  << "DEEP_TRACE: "
+#define FUNCTION_TRACE   if (LOGGING_LEVEL > 6) std::cout  << "FUNCTION_TRACE: "
 #define ENDL  " (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;
 #define NEWL  std::cout << " (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;

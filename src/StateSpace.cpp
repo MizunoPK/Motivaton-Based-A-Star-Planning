@@ -4,6 +4,7 @@
 #include <iostream>
 
 StateSpace::StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds, std::vector<double>& state_bounds) {
+    FUNCTION_TRACE << "State Space constructor called" << ENDL;
     this->x_bounds = x_bounds;
     this->y_bounds = y_bounds;
     this->state_bounds = state_bounds;
@@ -20,10 +21,12 @@ StateSpace::StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds, s
 }
 
 void StateSpace::setNode(std::string key, std::shared_ptr<Node> val) {
+    FUNCTION_TRACE << "StateSpace::setNode called" << ENDL;
     this->graph[key] = val;
 }
  
 std::shared_ptr<Node> StateSpace::getNode(std::vector<int> nodeCoord) {
+    FUNCTION_TRACE << "StateSpace::getNode called" << ENDL;
     std::string nodeStr = getCoordString(&nodeCoord);
     if ( this->graph.find(nodeStr) == this->graph.end() ) {
         FATAL << "Tried to get node " << nodeStr << " which does not exist in the graph. Make sure the node was defined in the graph file." << ENDL;
@@ -34,6 +37,7 @@ std::shared_ptr<Node> StateSpace::getNode(std::vector<int> nodeCoord) {
 }
 
 void StateSpace::addNeighbor(std::vector<std::shared_ptr<Node>>& adjacencies, std::vector<int> neighbor) {
+    FUNCTION_TRACE << "StateSpace::addNeighbor called" << ENDL;
     if ( neighbor.at(0) >= this->x_bounds.at(0)
         && neighbor.at(0) <= this->x_bounds.at(1)
         && neighbor.at(1) >= this->y_bounds.at(0)
@@ -44,6 +48,7 @@ void StateSpace::addNeighbor(std::vector<std::shared_ptr<Node>>& adjacencies, st
 }
 
 std::vector<std::shared_ptr<Node>> StateSpace::getAdjacencyList(std::shared_ptr<Node> node) {
+    FUNCTION_TRACE << "StateSpace::getAdjacencyList called" << ENDL;
     std::vector<std::shared_ptr<Node>> adjacencies;
     std::vector<int>* coord = node->getCoord();
     addNeighbor(adjacencies, std::vector<int> {coord->at(0) + 1, coord->at(1)});
@@ -58,6 +63,7 @@ double StateSpace::getGCostScale() {return this->gCostScale;}
 
 // * Debug Tools:
 void StateSpace::printNodes() {
+    FUNCTION_TRACE << "StateSpace::printNodes called" << ENDL;
     if (LOGGING_LEVEL > 3) {
         DEBUG << "X Bounds: ";
         printIntVector(&(this->x_bounds));
