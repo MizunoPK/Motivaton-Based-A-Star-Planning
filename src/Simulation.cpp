@@ -21,12 +21,16 @@ void Simulation::initializeStateSpace(std::string graphFile) {
     if (graphFileStream.is_open()) {
         std::string fileLine;
 
+        // Get the state value bounds
+        std::getline(graphFileStream, fileLine);
+        std::vector<double> state_bounds = splitDoubleList(fileLine);
+
         // Get the bounds
         std::getline(graphFileStream, fileLine);
         std::vector<int> x_bounds = splitIntList(fileLine);
         std::getline(graphFileStream, fileLine);
         std::vector<int> y_bounds = splitIntList(fileLine);
-        this->ss = std::make_shared<StateSpace>(x_bounds, y_bounds);
+        this->ss = std::make_shared<StateSpace>(x_bounds, y_bounds, state_bounds);
 
         while (graphFileStream) {
             std::getline(graphFileStream, fileLine);
@@ -110,8 +114,8 @@ double Simulation::calculateGCost(std::vector<double>* v1, std::vector<double>* 
         weight += abs(v1->at(i) - v2->at(i));
     }
     
-    // TODO  Prioritize a state
-    // TODO Scale the weight down so it is comparable to the h_cost
+    // Scale the weight down so it is comparable to the h_cost
+    weight *= this->ss->getGCostScale();
 
     return weight;
 }

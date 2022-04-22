@@ -3,9 +3,20 @@
 #include "util.h"
 #include <iostream>
 
-StateSpace::StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds) {
+StateSpace::StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds, std::vector<double>& state_bounds) {
     this->x_bounds = x_bounds;
     this->y_bounds = y_bounds;
+    this->state_bounds = state_bounds;
+
+    // Calculate the scaling factor that will be needed to ensure g cost and h cost are weighted the same
+    double max_h_cost = abs(x_bounds.at(0) - x_bounds.at(1)) + abs(y_bounds.at(0) - y_bounds.at(1));
+    DEBUG << "Max H Cost calculated as: " << max_h_cost << ENDL;
+
+    double maxStateDifference = this->state_bounds.at(1) - this->state_bounds.at(0);
+    DEBUG << "Maximum difference in state calculated as: " << maxStateDifference << ENDL;
+
+    this->gCostScale = max_h_cost / maxStateDifference;
+    DEBUG << "G cost scaling amount calculated as: " << this->gCostScale << ENDL;
 }
 
 void StateSpace::setNode(std::string key, std::shared_ptr<Node> val) {
@@ -41,6 +52,9 @@ std::vector<std::shared_ptr<Node>> StateSpace::getAdjacencyList(std::shared_ptr<
     addNeighbor(adjacencies, std::vector<int> {coord->at(0), coord->at(1) - 1});
     return adjacencies;
 }
+
+std::vector<double>* StateSpace::getStateBounds() {return &(this->state_bounds);}
+double StateSpace::getGCostScale() {return this->gCostScale;}
 
 // * Debug Tools:
 void StateSpace::printNodes() {
