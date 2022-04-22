@@ -18,13 +18,19 @@ private:
     std::vector<int> x_bounds;
     std::vector<int> y_bounds;
 
+    // Min/Max Values for state values
+    std::vector<double> state_bounds;
+
+    // The scaling factor for g_costs that helps us ensure g_costs are weighted the same as h_costs
+    double gCostScale;
+
     // Helper Function: addNeighbor
     // Description: Checks if the given neighbor is valid to traverse, if so it adds it to the given vector of nodes
     void addNeighbor(std::vector<std::shared_ptr<Node>>& adjacencies, std::vector<int> neighbor);
 
 public:
     // * Function: Constructpr
-    StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds);
+    StateSpace(std::vector<int>& x_bounds, std::vector<int>& y_bounds, std::vector<double>& state_bounds);
 
     // * Function: setNode
     // Description: adds/sets a node to the graph
@@ -41,6 +47,10 @@ public:
     // Input: node - The pointer of the node whose list is being fetched
     // Output: vector - The associated adjacencyList 
     std::vector<std::shared_ptr<Node>> getAdjacencyList(std::shared_ptr<Node> node);
+
+    // Getters
+    std::vector<double>* getStateBounds();
+    double getGCostScale();
 
     // * Debug Tools:
     void printNodes();
