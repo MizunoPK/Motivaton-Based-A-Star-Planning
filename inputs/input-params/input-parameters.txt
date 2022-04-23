@@ -1,6 +1,6 @@
 MinMaxStateWeight:0,10
-RowDim:0,10
-ColDim:0,10
-NumberOfWalls:1
+RowDim:0,7
+ColDim:0,7
+NumberOfWalls:2
 IsMizunoAlgorithm(Put a "0" here to return graph for A*):1
-ScalarVision:3
+ScalarVision:5

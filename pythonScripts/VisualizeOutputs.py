@@ -92,7 +92,7 @@ with open(graphFile) as g:
 # # # ###########################Graphing############################
 # # # ###############################################################
 # # Determine Graph Size
-graphSize += int(xminMax[2]) - int(xminMax[0]);
+graphSize += int(xminMax.split(",")[1]) - int(xminMax.split(",")[0]);
 #graphSize = 5
 # Make Empty Data Set Size of Graph
 data = np.ones((graphSize, graphSize)) * np.nan
@@ -118,7 +118,8 @@ x,y = setCirclepos(int(startpos[0]), int(startpos[2]))
 s=Circle((x, y), .5,color='blue')
 ax.add_artist(s)
 #Set Goal State
-x,y = setCirclepos(int(primaryGoal[0]), int(primaryGoal[2]))
+print(primaryGoal.split(","))
+x,y = setCirclepos(int(primaryGoal.split(",")[0]), int(primaryGoal.split(",")[1]))
 e=Circle((x, y), .5,color='green')
 ax.add_artist(e)
 #Set Secondary Goals
@@ -133,7 +134,9 @@ for xi in range(graphSize):
     for yi in range(graphSize):
         ans = False
         for n in nodes:
-            if(int(n[0]) == xi and int(n[2]) == yi):
+            print(n.split(","))
+            print(n.split(",")[0])
+            if(int(n.split(",")[0]) == xi and int(n.split(",")[1]) == yi):
                 ans = True    
         if(ans != True):    
             rect = patches.Rectangle((xi, yi), 1, 1,fill=False,hatch='/')
@@ -181,7 +184,7 @@ while True:
     pathPatches = []
     for x in range(len(path[i])):
         temp = path[i][x]
-        x,y = setCirclepos(int(temp[0]), int(temp[2]))
+        x,y = setCirclepos(int(temp.split(",")[0]), int(temp.split(",")[1]))
         if(secondaryGoals != 'NULL'):
             for goal in secondaryGoals.split("-"):
                 x2,y2 = setCirclepos(int(goal[0]), int(goal[2]))
@@ -197,7 +200,7 @@ while True:
     for x in pathPatches:
         ax.add_artist(x)
         
-    x,y = setCirclepos(int(currPos[0]), int(currPos[2]))
+    x,y = setCirclepos(int(currPos.split(",")[0]), int(currPos.split(",")[1]))
     current = Circle((x, y), .5,color='black')
     currPatches.append(current)
 
@@ -225,6 +228,7 @@ while True:
     fig.canvas.flush_events()
 
     time.sleep(0.5)
+    enter =  input("Smash Enter for New Step...;)")
     for x in pathPatches:
         x.remove()
     for x in currPatches:
@@ -232,7 +236,7 @@ while True:
     # Drawing updated values
     fig.canvas.draw()
     fig.canvas.flush_events()
-    time.sleep(.5)
+    # time.sleep(.5)
 ###################################Draw Weights Info###########################################
 # names = ["Hi", "Hello"]
     # # Draw Weights
