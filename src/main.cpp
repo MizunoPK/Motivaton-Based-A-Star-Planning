@@ -13,10 +13,11 @@ int main(int argc, char **argv) {
    std::string agentFile = "";
    const std::string DEFAULT_OUTPUT = "outputs/output.txt";
    std::string outputFile = DEFAULT_OUTPUT;
+   bool makePrettyOutput = false;
 
    // * Check the Arguments
    int option;
-   while((option = getopt(argc, argv, "d:g:a:o:")) != -1) {
+   while((option = getopt(argc, argv, "d:g:a:o:p")) != -1) {
       switch(option) {
          case 'g':
             graphFile = optarg;
@@ -29,6 +30,9 @@ int main(int argc, char **argv) {
             break;
          case 'd':
             LOGGING_LEVEL = atoi(optarg);
+            break;
+         case 'p':
+            makePrettyOutput = true;
             break;
          case ':':
          case '?':
@@ -48,7 +52,7 @@ int main(int argc, char **argv) {
    INFO << "Debug Level: " << LOGGING_LEVEL << ENDL;
 
    // * Set up the Simulation 
-   Simulation sim(graphFile, agentFile, outputFile);
+   Simulation sim(graphFile, agentFile, outputFile, makePrettyOutput);
    sim.runSearch();
 
    return 0;

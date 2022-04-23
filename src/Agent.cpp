@@ -28,12 +28,14 @@ void Agent::updateState(std::vector<double>* modifiers, std::vector<double>* sta
     }
 }
 
-void Agent::deleteSecondaryGoal(std::shared_ptr<Node> node) {
+bool Agent::deleteSecondaryGoal(std::shared_ptr<Node> node) {
     auto it = find(this->secondaryGoals.begin(), this->secondaryGoals.end(), node);
     if ( it != this->secondaryGoals.end() ) {
         TRACE << "A secondary goal has been reached... Deleting from list of secondary goals" << ENDL;
         this->secondaryGoals.erase(it);
+        return true;
     }
+    return false;
 }
 
 // * Getters

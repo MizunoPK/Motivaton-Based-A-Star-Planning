@@ -4,13 +4,15 @@
 #include <fstream>
 #include <vector>
 
-Simulation::Simulation(std::string graphFile, std::string agentFile, std::string outputPath) {
+Simulation::Simulation(std::string graphFile, std::string agentFile, std::string outputPath, bool makePrettyOutput) {
     FUNCTION_TRACE << "Simulation constructor called" << ENDL;
 
     initializeStateSpace(graphFile);
     initializeAgent(agentFile);
 
     this->outputPath = outputPath;
+    this->makePrettyOutput = makePrettyOutput;
+    this->sGoalsReached = 0;
 
     // Debugging Prints
     this->ss->printNodes();
@@ -216,7 +218,10 @@ void Simulation::runSearch() {
         }
 
         // if we reached a secondary goal, remove the goal from the list of s-goals
-        this->agent->deleteSecondaryGoal(startingNode);
+        bool reachedSGoal = this->agent->deleteSecondaryGoal(startingNode);
+        if ( reachedSGoal ) {
+            this->sGoalsReached++;
+        }
 
         // Get the first node in the path
         // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
@@ -541,46 +546,108 @@ void Simulation::outputToFile() {
     FUNCTION_TRACE << "Simulation::outputToFile called" << ENDL;
     TRACE << "Outputting to file: " << this->outputPath << ENDL;
 
+    if ( makePrettyOutput ) {
+        INFO << "-p flag is set. Outputting in a readable format." << ENDL;
+    }
+
     // Open the file
     std::ofstream outputStream(this->outputPath);
 
     // Amount of Time Taken
+    if ( this->makePrettyOutput ) {
+        outputStream << "TIME ELASPED: ";
+    }
     outputStream <<  elapsed_seconds.count() << "\n";
 
+    // Number of s-goals reached
+    if ( this->makePrettyOutput ) {
+        outputStream << "# OF SECONDARY GOALS REACHED: ";
+        outputStream << this->sGoalsReached << "\n";
+    }
+
+    // Length of final path
+    if ( this->makePrettyOutput ) {
+        outputStream << "LENGTH OF FINAL PATH: ";
+        outputStream << this->finalPath.size() << "\n";
+    }
+
+    // Final state of agent
+    if ( this->makePrettyOutput ) {
+        outputStream << "FINAL STATE OF AGENT: [";
+    
+        for ( int i=0; i < this->agent->getState()->size(); i++ ) {
+            outputStream << this->agent->getState()->at(i);
+            if ( i < this->agent->getState()->size() - 1 ) {
+                outputStream << ",";
+            }
+        }
+        outputStream << "]\n";
+    }
+
     // Loop through the final path and output each line
+    if ( this->makePrettyOutput ) {
+        outputStream << "\nFINAL PATH:\n";
+    }
     for ( int i=0; i < this->finalPath.size(); i++ ) {
         std::shared_ptr<FinalPathNode> fpn = this->finalPath.at(i);
 
         // Start a new line
-        if ( i != 0 ) {
-            outputStream << "\n";
-        }
+        if ( i != 0 ) outputStream << "\n";
+
+        if ( this->makePrettyOutput ) outputStream << "NODE " << i << ":\n";
 
         // Output the node coordinates
+        if ( this->makePrettyOutput ) outputStream << "Coordinate: (";
+        
         std::vector<int>* fpnCoords = fpn->node->getCoord();
-        outputStream << fpnCoords->at(0) << "," << fpnCoords->at(1) << " ";
+        outputStream << fpnCoords->at(0) << "," << fpnCoords->at(1);
+        if ( this->makePrettyOutput ) outputStream << ")\n";
+        else outputStream << " ";
 
         // Output the agent state
+        if ( this->makePrettyOutput ) outputStream << "Agent State After Reaching This Node: [";
         for ( int j=0; j < fpn->agentState.size(); j++ ) {
             outputStream << fpn->agentState.at(j);
             if ( j != fpn->agentState.size() - 1 ) {
                 outputStream << ",";
             }
         }
-        outputStream << " ";
+        if ( this->makePrettyOutput ) outputStream << "]\n";
+        else outputStream << " ";
 
         // Output the anticipated path
         // Note: anticipated path is stored backwards
+        if ( this->makePrettyOutput ) outputStream << "Path the Agent Anticipates taking to the Primary Goal: ";
+
         for ( int j = fpn->anticipatedPath.size() - 1; j >= 0; j-- ) {
             std::vector<int>* nodeCoords = fpn->anticipatedPath.at(j)->getCoord();
+
+            if ( this->makePrettyOutput ) outputStream << "(";
             outputStream << nodeCoords->at(0) << "," << nodeCoords->at(1);
+            if ( this->makePrettyOutput ) outputStream << ")";
+
             if ( j != 0 ) {
-                outputStream << "-";
+                if ( this->makePrettyOutput ) outputStream << " -> ";
+                else outputStream << "-";
             }
         }
+        if ( this->makePrettyOutput ) outputStream << "\n";
 
         // Output the goal node
-        outputStream << " " << getCoordString(fpn->goalNode->getCoord());
+        if ( this->makePrettyOutput ) {
+            if ( fpn->node == this->agent->getPrimaryGoal() ) {
+                outputStream << "Agent has reached the primary goal.\n";
+            }
+            else if ( fpn->goalNode == this->agent->getPrimaryGoal() ) {
+                outputStream << "Agent is not pursuing any secondary goal. It is heading straight to the primary goal.\n";
+            }
+            else {
+                outputStream << "Agent is pursuing secondary goal: (" << getCoordString(fpn->goalNode->getCoord()) << ")\n";
+            }
+        }
+        else {
+            outputStream << " " << getCoordString(fpn->goalNode->getCoord());
+        }
     }
 
     outputStream.close();
