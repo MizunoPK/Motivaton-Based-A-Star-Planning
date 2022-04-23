@@ -45,8 +45,8 @@ graphFile = sys.argv[2]
 agentFile = sys.argv[3]
 # print(agentFile)
 ##Read Output File:
-os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'outputs'))
+# os.chdir("..")
+# os.chdir(os.path.join(os.getcwd(), 'outputs'))###############################################
 with open(outFile) as o:
     t = o.readline().rstrip() #Reads Time to Traverse 
     for line in o:
@@ -61,8 +61,8 @@ with open(outFile) as o:
                 path.append(word.split("-"))
             i += 1
 ######################################################################################################################
-os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'inputs/basic1')) ####ChangeFolder Based on File Location####
+# os.chdir("..")
+# os.chdir(os.path.join(os.getcwd(), 'inputs/basic1')) ####ChangeFolder Based on File Location####
 with open(agentFile) as a:
     agentStartState = a.readline().rstrip()
     startpos = a.readline().rstrip()
@@ -86,8 +86,8 @@ with open(graphFile) as g:
                 changeVals.append(word)
             n += 1
         stepCount+=1
-os.chdir("../..")
-os.chdir(os.path.join(os.getcwd(), 'outputs'))
+# os.chdir("../..")
+# os.chdir(os.path.join(os.getcwd(), 'outputs'))
 # # # ###############################################################
 # # # ###########################Graphing############################
 # # # ###############################################################
