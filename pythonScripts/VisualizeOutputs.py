@@ -228,6 +228,7 @@ while True:
     fig.canvas.flush_events()
 
     time.sleep(0.5)
+    enter =  input("Smash Enter for New Step...;)")
     for x in pathPatches:
         x.remove()
     for x in currPatches:
@@ -235,7 +236,7 @@ while True:
     # Drawing updated values
     fig.canvas.draw()
     fig.canvas.flush_events()
-    time.sleep(.5)
+    # time.sleep(.5)
 ###################################Draw Weights Info###########################################
 # names = ["Hi", "Hello"]
     # # Draw Weights

@@ -107,9 +107,9 @@ class GraphGenerator:
         self.f.writelines(self.Lines)
         self.f.close()
     def GenerateObstacles(self):
-        ObstacleDensity = .05
+        ObstacleDensity = .12
         GraphSpans = [self.GraphDim1[1]-self.GraphDim1[0], self.GraphDim2[1]-self.GraphDim2[0]]
-        MaxObstacles = .05 * (float(GraphSpans[0])*float(GraphSpans[1]))
+        MaxObstacles = ObstacleDensity * (float(GraphSpans[0])*float(GraphSpans[1]))
         # NodeRange = len(self.Lines)
         WallLength = int(MaxObstacles / float(self.NumberOfWalls))
         # Create n walls
@@ -168,6 +168,7 @@ class AgentGenerator():
         self.ScalarVision = str(ScalarVision) + "\n"
         self.Thresholds = str(round(self.InitialState[0] / 5,3))+","+str(round(self.InitialState[1] / 5,3))+","+ str(round(self.InitialState[2] / 5,3))
         self.MaxGoals =  int(math.floor(.05 * (GraphDim1[1] - GraphDim1[0])*(GraphDim2[1] - GraphDim2[0])))
+        #self.MaxGoals =  3
         self.Lines = Lines
         self.SecondaryGoalNodes = self.GenerateSecondaryGoals()
     def GenerateSecondaryGoals(self):
@@ -181,7 +182,7 @@ class AgentGenerator():
             secondaryGoals.append(node)
         strSecondaryGoals = ""
         for goal in secondaryGoals:
-            strSecondaryGoals = strSecondaryGoals + goal + " "
+            strSecondaryGoals = strSecondaryGoals + goal + "-"
         strSecondaryGoals = strSecondaryGoals[:-1]
         strSecondaryGoals = strSecondaryGoals+"\n"
         return strSecondaryGoals
