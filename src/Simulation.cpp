@@ -224,7 +224,7 @@ void Simulation::runSearch() {
         
         // if we change the agent's state, perform the change
         if ( nextNode->getCanChangeAgent() ) {
-            this->agent->updateState(nextNode->getModifiers());
+            this->agent->updateState(nextNode->getModifiers(), this->ss->getStateBounds());
 
             if ( LOGGING_LEVEL > 4 ) {
                 TRACE << "Agent state changed... New state: ";
