@@ -36,6 +36,7 @@ void Simulation::initializeStateSpace(std::string graphFile) {
         std::vector<int> y_bounds = splitIntList(fileLine);
         this->ss = std::make_shared<StateSpace>(x_bounds, y_bounds, state_bounds);
 
+        this->agentCanChange = false;
         while (graphFileStream) {
             std::getline(graphFileStream, fileLine);
             std::vector<std::string> lineVector = split(fileLine, ' ');
@@ -49,6 +50,15 @@ void Simulation::initializeStateSpace(std::string graphFile) {
 
             // Get node agent-modifiers
             std::vector<double> modifiers = splitDoubleList(lineVector.at(2));
+            // Check if the agent can change
+            if ( !agentCanChange ) {
+                for ( int i=0; i < modifiers.size(); i++ ) {
+                    if ( modifiers.at(i) > 0 ) {
+                        agentCanChange = true;
+                        break;
+                    }
+                }
+            }
 
             // Make a node and add it to the state space graph
             ss->setNode(coordsString, std::make_shared<Node>(coords, state, modifiers));
@@ -174,13 +184,20 @@ void Simulation::runSearch() {
             NEWL;
         }
 
-        // If there are no secondary goals, or we have a vision value of 0... Then don't bother running A* again
+        // If the agent cannot change and there are no secondary goals, or we have a vision value of 0... Then don't bother running A* again
         // TODO For the game application, change this to only care about vision
-        if ( this->agent->getSecondaryGoals()->size() == 0 || this->agent->getVision() == 0 ) {
+        if ( !this->agentCanChange && 
+            (this->agent->getSecondaryGoals()->size() == 0 || this->agent->getVision() == 0 )) {
             INFO << "No need to run A* again... Returning this as the final path" << ENDL;
             // Add all nodes to the final path
             for ( int i = anticipatedPath.size() - 1; i >= 0; i--  ) {
-                this->finalPath.push_back( std::make_shared<FinalPathNode>(anticipatedPath.at(i), *(this->agent->getState()), anticipatedPath, goalNode) );
+                // Get a vector of the path in question
+                auto start = anticipatedPath.begin();
+                auto end = anticipatedPath.begin() + i + 1;
+                std::vector<std::shared_ptr<Node>> subPath(i+1);
+                copy(start, end, subPath.begin());
+
+                this->finalPath.push_back( std::make_shared<FinalPathNode>(anticipatedPath.at(i), *(this->agent->getState()), subPath, goalNode) );
             }
 
             // Exit the loop

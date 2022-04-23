@@ -50,7 +50,7 @@ private:
     std::shared_ptr<Agent> agent;
     std::string outputPath;
     std::vector<std::shared_ptr<FinalPathNode>> finalPath; 
-
+    bool agentCanChange;
 
     // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
