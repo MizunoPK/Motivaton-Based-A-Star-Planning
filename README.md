@@ -14,6 +14,13 @@ Check Outputs:
 - Number of Goals Reached
 - Number of Nodes Traversed
 
+./dynamic-pathing options:
+-a <path to agent file> // specify which file contains the agent information
+-g <path to graph file> // specify which file contains the state space information
+-o <path to output file> // specify what file you want to send the output of the search to
+-p // optional flag~ set this if you want the output file to be in a readable format. This will prevent you from being able to use the output in the visualization script
+
+
 Input File(s) Structure:
 1) GraphDefinition:
    1) <Min State Value>,<Max State Value>
