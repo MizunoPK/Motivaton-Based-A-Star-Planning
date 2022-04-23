@@ -68,7 +68,7 @@ class GraphGenerator:
         self.GraphDim1 = InputParams.GraphDim1
         self.GraphDim2 = InputParams.GraphDim2
         self.Lines = []
-        self.f = open('/inputs/big-graph/InputGraph.txt', 'w')
+        self.f = open('./inputs/big-graph/InputGraph.txt', 'w')
         self.NumberOfWalls = int(InputParams.NumberOfWalls)
         self.IsMizunoAlgorithm = InputParams.IsMizunoAlgorithm
         self.ScalarVision = InputParams.ScalarVision
@@ -186,7 +186,7 @@ class AgentGenerator():
         strSecondaryGoals = strSecondaryGoals+"\n"
         return strSecondaryGoals
     def WriteAgent(self):
-        outputFile = open("/inputs/big-graph/InputAgent.txt", 'w')
+        outputFile = open("./inputs/big-graph/InputAgent.txt", 'w')
         OutputLines = []
         self.InitialState = str(self.InitialState[0])+","+str(self.InitialState[1])+","+str(self.InitialState[2]) + "\n"
         OutputLines.append(self.InitialState)
