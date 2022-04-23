@@ -3,6 +3,7 @@
 #include "util.h"
 #include <iostream>
 #include <algorithm>
+#include <bits/stdc++.h>
 
 Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std::shared_ptr<Node> primaryGoal, std::vector<std::shared_ptr<Node>>& secondaryGoals, int vision, std::vector<double>& goalRanges) {
     this->state = state;
@@ -13,9 +14,9 @@ Agent::Agent(std::vector<double>& state, std::shared_ptr<Node> startingNode, std
     this->goalRanges = goalRanges;
 }
 
-void Agent::updateState(std::vector<double>* modifiers) {
+void Agent::updateState(std::vector<double>* modifiers, std::vector<double>* stateBounds) {
     for ( int i=0; i < modifiers->size(); i++ ) {
-        this->state.at(i) += modifiers->at(i);
+        this->state.at(i) = std::clamp(this->state.at(i) + modifiers->at(i), stateBounds->at(0), stateBounds->at(1));
     }
 
     if ( LOGGING_LEVEL > 4 ) {

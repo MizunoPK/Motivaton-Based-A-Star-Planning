@@ -21,7 +21,7 @@ public:
 
     // * Function: updateState
     // Description: Updates the internal state of the agent reflecting the provided change values
-    void updateState(std::vector<double>* modifiers);
+    void updateState(std::vector<double>* modifiers, std::vector<double>* stateBounds);
 
     // * Function: deleteSecondaryGoal
     // Description: If the given node is a secondary goal, it will be deleted from the list of s-goals
