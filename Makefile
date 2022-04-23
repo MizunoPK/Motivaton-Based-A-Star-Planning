@@ -39,7 +39,10 @@ can-change:
 s-goals:
 	./dynamic-pathing -d 5 -g inputs/s-goals/s-goals-graph.txt -a inputs/s-goals/s-goals-agent.txt -o outputs/s-goals-output.txt > outputs/s-goals.log
 	python3 ./pythonScripts/VisualizeOutputs.py outputs/s-goals-output.txt inputs/s-goals/s-goals-graph.txt inputs/s-goals/s-goals-agent.txt
-
 unreachable:
 	./dynamic-pathing -d 6 -g inputs/unreachable/unreachable-graph.txt -a inputs/unreachable/unreachable-agent.txt -o outputs/unreachable-output.txt > outputs/unreachable.log
 	python3 ./pythonScripts/VisualizeOutputs.py outputs/unreachable-output.txt inputs/unreachable/unreachable-graph.txt inputs/unreachable/unreachable-agent.txt
+big-graph:
+	python3 ./pythonScripts/GenerateInput.py ./inputs/input-params/input-parameters.txt
+	./dynamic-pathing -d 6 -g inputs/big-graph/InputGraph.txt -a inputs/big-graph/InputAgent.txt -o outputs/big-graph-output.txt > outputs/big-graph.log
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/big-graph-output.txt inputs/big-graph/big-graph-graph.txt inputs/big-graph/big-graph-agent.txt
