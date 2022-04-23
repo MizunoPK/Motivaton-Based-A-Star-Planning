@@ -20,7 +20,7 @@ Input File(s) Structure:
    2) <Min X Value>,<Max X Value>
    3) <Min Y Value>,<Max Y Value>
    4...) <x>,<y> <internal state> <change value>
-3) AgentDefinition:
+2) AgentDefinition:
    1) <Starting Internal State>
    2) Starting Coordinate
    3) Primary Goal Coordinate
