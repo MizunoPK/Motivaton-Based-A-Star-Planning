@@ -49,8 +49,16 @@ private:
     std::shared_ptr<StateSpace> ss;
     std::shared_ptr<Agent> agent;
     std::string outputPath;
+    bool makePrettyOutput;
     std::vector<std::shared_ptr<FinalPathNode>> finalPath; 
     bool agentCanChange;
+
+    // * EVALUATION METRIC STUFF
+    // Time
+    // Using time point and system_clock
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds;
+    int sGoalsReached = 0;
 
     // * Function: initializeStateSpace
     // Description: Initializes the local StateSpace object with the information from the input files
@@ -126,17 +134,12 @@ public:
     //      graphFile - The path to the file outlining the graph nodes
     //      agentFile - The path to the file outlining agent's starting state, starting node, and primary/secondary goals
     //      outputFile - The path to where we want to output the results of the search
-    Simulation(std::string graphFile, std::string agentFile, std::string outputFile);
+    //      makePrettyOutput - a boolean flag set when we want a readable output file
+    Simulation(std::string graphFile, std::string agentFile, std::string outputFile, bool makePrettyOutput);
 
     // * Function: runSearch 
     // Description: Runs the A* search on the initialized data
     void runSearch();
-    // Time
-    // Using time point and system_clock
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-  
-    std::chrono::duration<double> elapsed_seconds;
-    //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 };
 
 

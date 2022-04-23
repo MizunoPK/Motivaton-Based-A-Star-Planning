@@ -25,7 +25,9 @@ public:
 
     // * Function: deleteSecondaryGoal
     // Description: If the given node is a secondary goal, it will be deleted from the list of s-goals
-    void deleteSecondaryGoal(std::shared_ptr<Node> node);
+    // Input: The node to check/delete
+    // Output: True if we deleted an s-goal, false if not
+    bool deleteSecondaryGoal(std::shared_ptr<Node> node);
 
     // Getters
     std::vector<double>* getState();
