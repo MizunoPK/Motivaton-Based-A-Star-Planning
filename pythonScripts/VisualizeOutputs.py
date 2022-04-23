@@ -34,17 +34,17 @@ goalsR = 0
 t = 0
 ######################################################################################################################
 # #Get File Names
-outFile = input("Please Enter an Output File (i.e. 'example.txt'): ")
-graphFile = input("Please Enter a Graph File (i.e. 'basic1-graph.txt'): ")
-agentFile = input("Please Enter an Agent File (i.e. 'basic1-agent.txt'): ")
+# outFile = input("Please Enter an Output File (i.e. 'example.txt'): ")
+# graphFile = input("Please Enter a Graph File (i.e. 'basic1-graph.txt'): ")
+# agentFile = input("Please Enter an Agent File (i.e. 'basic1-agent.txt'): ")
 #SysARGV
-# outFile = sys.argv[1]
+outFile = sys.argv[1]
 # print(outFile)
-# graphFile = sys.argv[2]
+graphFile = sys.argv[2]
 # print(graphFile)
-# agentFile = sys.argv[3]
+agentFile = sys.argv[3]
 # print(agentFile)
-# ##Read Output File:
+##Read Output File:
 os.chdir("..")
 os.chdir(os.path.join(os.getcwd(), 'outputs'))
 with open(outFile) as o:
