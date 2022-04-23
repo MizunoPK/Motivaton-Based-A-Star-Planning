@@ -37,6 +37,13 @@ t = 0
 outFile = input("Please Enter an Output File (i.e. 'example.txt'): ")
 graphFile = input("Please Enter a Graph File (i.e. 'basic1-graph.txt'): ")
 agentFile = input("Please Enter an Agent File (i.e. 'basic1-agent.txt'): ")
+#SysARGV
+# outFile = sys.argv[1]
+# print(outFile)
+# graphFile = sys.argv[2]
+# print(graphFile)
+# agentFile = sys.argv[3]
+# print(agentFile)
 # ##Read Output File:
 os.chdir("..")
 os.chdir(os.path.join(os.getcwd(), 'outputs'))
@@ -55,7 +62,7 @@ with open(outFile) as o:
             i += 1
 ######################################################################################################################
 os.chdir("..")
-os.chdir(os.path.join(os.getcwd(), 'inputs/s-goals')) ####ChangeFolder Based on File Location####
+os.chdir(os.path.join(os.getcwd(), 'inputs/basic1')) ####ChangeFolder Based on File Location####
 with open(agentFile) as a:
     agentStartState = a.readline().rstrip()
     startpos = a.readline().rstrip()
@@ -65,6 +72,7 @@ with open(agentFile) as a:
     #Doesn't Read In State Thresholds
 ######################################################################################################################
 with open(graphFile) as g:
+    g.readline().rstrip();
     xminMax = g.readline().rstrip();
     yminMax = g.readline().rstrip()
     for line in g:
@@ -120,6 +128,16 @@ if(secondaryGoals != 'NULL'):
         x,y = setCirclepos(int(goal[0]), int(goal[2]))
         e=Circle((x, y), .5,color='orange')
         ax.add_artist(e)
+# Check if Untraversable
+for xi in range(graphSize):
+    for yi in range(graphSize):
+        ans = False
+        for n in nodes:
+            if(int(n[0]) == xi and int(n[2]) == yi):
+                ans = True    
+        if(ans != True):    
+            rect = patches.Rectangle((xi, yi), 1, 1,fill=False,hatch='/')
+            ax.add_artist(rect)
 blue_patch = mpatches.Patch(color='blue', label='Start Position')
 red_patch = mpatches.Patch(color='red', label='Path')
 black_patch = mpatches.Patch(color='black', label='Current/Past Positions')
