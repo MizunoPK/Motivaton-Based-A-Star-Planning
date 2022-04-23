@@ -56,8 +56,9 @@ private:
     // * EVALUATION METRIC STUFF
     // Time
     // Using time point and system_clock
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds;
+    std::chrono::duration<double> total_elapsed_seconds;
+    std::chrono::duration<double> max_astar_time;
+    void endAStarClock(std::chrono::time_point<std::chrono::system_clock> start);
     int sGoalsReached = 0;
 
     // * Function: initializeStateSpace

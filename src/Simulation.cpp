@@ -154,7 +154,7 @@ void Simulation::runSearch() {
     FUNCTION_TRACE << "Simulation::runSearch called" << ENDL;
 
     // Start measuring time
-    start = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::high_resolution_clock::now();
 
     TRACE << "Starting Search..." << ENDL;
 
@@ -240,17 +240,27 @@ void Simulation::runSearch() {
         startingNode = nextNode;
     }
     //Timing
-    end = std::chrono::system_clock::now();
-    elapsed_seconds = end - start;
+    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
+    total_elapsed_seconds = end - start;
     // Output the final path
     outputToFile();
 }
 
+void Simulation::endAStarClock(std::chrono::time_point<std::chrono::system_clock> start) {
+    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsedTime = end - start;
+    if ( elapsedTime.count() > this->max_astar_time.count() ) {
+        this->max_astar_time = elapsedTime;
+    }
+}
 
 std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath) {
     FUNCTION_TRACE << "Simulation::getPath called" << ENDL;
-
     DEEP_TRACE << "getPath called... Beginning search for secondary goals..." << ENDL;
+
+    
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
+
     // Get useful info
     std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
     std::vector<double>* goalRanges = this->agent->getGoalRanges();
@@ -350,6 +360,7 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
                     anticipatedPath.push_back(sGoalPath.at(i));
                 }
 
+                endAStarClock(start);
                 return viableGoals.at(i)->node;
             }
             // If no path exists, move on and check the next s-goal
@@ -369,6 +380,7 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     // So, get the path to the primary goal
     DEEP_TRACE << "No viable secondary goals found... Finding path to primary goal..." << ENDL;
     anticipatedPath = runAstar(startingNode, this->agent->getPrimaryGoal());
+    endAStarClock(start);
     return this->agent->getPrimaryGoal();
 }
 
@@ -555,9 +567,14 @@ void Simulation::outputToFile() {
 
     // Amount of Time Taken
     if ( this->makePrettyOutput ) {
-        outputStream << "TIME ELASPED: ";
+        outputStream << "TOTAL TIME ELASPED: " << total_elapsed_seconds.count() << "\n";
     }
-    outputStream <<  elapsed_seconds.count() << "\n";
+
+    // Amount of A* Time Taken
+    if ( this->makePrettyOutput ) {
+        outputStream << "MAX A* TIME ELASPED: ";
+    }
+    outputStream <<  max_astar_time.count() << "\n";
 
     // Number of s-goals reached
     if ( this->makePrettyOutput ) {
