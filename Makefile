@@ -29,15 +29,17 @@ clean:
 
 basic1:
 	./dynamic-pathing -d 5 -g inputs/basic1/basic1-graph.txt -a inputs/basic1/basic1-agent.txt -o outputs/basic1-output.txt > outputs/basic1.log
-
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/basic1-output.txt inputs/basic1/basic1-graph.txt inputs/basic1/basic1-agent.txt
 no-change:
 	./dynamic-pathing -d 5 -g inputs/no-change/no-change-graph.txt -a inputs/no-change/no-change-agent.txt -o outputs/no-change-output.txt > outputs/no-change.log
-
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/no-change-output.txt inputs/no-change/no-change-graph.txt inputs/no-change/no-change-agent.txt
 can-change:
-	./dynamic-pathing -d 5 -g inputs/can-change/can-change-graph.txt -a inputs/can-change/can-change-agent.txt -o outputs/can-change-ouput.txt > outputs/can-change.log
-
+	./dynamic-pathing -d 5 -g inputs/can-change/can-change-graph.txt -a inputs/can-change/can-change-agent.txt -o outputs/can-change-output.txt > outputs/can-change.log
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/can-change-output.txt inputs/can-change/can-change-graph.txt inputs/can-change/can-change-agent.txt
 s-goals:
 	./dynamic-pathing -d 5 -g inputs/s-goals/s-goals-graph.txt -a inputs/s-goals/s-goals-agent.txt -o outputs/s-goals-output.txt > outputs/s-goals.log
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/s-goals-output.txt inputs/s-goals/s-goals-graph.txt inputs/s-goals/s-goals-agent.txt
 
 unreachable:
-	./dynamic-pathing -d 6 -g inputs/unreachable/unreachable-graph.txt -a inputs/unreachable/unreachable-agent.txt -o outputs/unreachable-ouput.txt > outputs/unreachable.log
+	./dynamic-pathing -d 6 -g inputs/unreachable/unreachable-graph.txt -a inputs/unreachable/unreachable-agent.txt -o outputs/unreachable-output.txt > outputs/unreachable.log
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/unreachable-output.txt inputs/unreachable/unreachable-graph.txt inputs/unreachable/unreachable-agent.txt
