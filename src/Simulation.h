@@ -89,7 +89,8 @@ private:
     //      &checkedNodes - a hash set of already checked nodes
     //      centerNode - The node at the center of the vision radius for this call
     //      range - the vision range of the center node, this decrements with each call to getSecondaryGoals
-    void getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range);
+    //      depth - inverse of range, used to determine the h_cost of the s-goals
+    void getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range, int depth);
 
     // * Function: runAstar
     // Description: Runs one interation of A* for the given start node

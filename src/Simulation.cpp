@@ -270,7 +270,7 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     // Compile a list of secondary goals within vision range
     std::vector<std::shared_ptr<SearchNode>> viableGoals;
     std::unordered_set<std::shared_ptr<Node>> checkedNodes;
-    this->getSecondaryGoals(viableGoals, checkedNodes, startingNode, this->agent->getVision());
+    this->getSecondaryGoals(viableGoals, checkedNodes, startingNode, this->agent->getVision(), 0);
 
     // Sort goals by g_costs
     // This will sort from highest cost to lowest cost
@@ -299,7 +299,8 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     //      choose the secondary goal as the temporary goal
     for ( int i = viableGoals.size() - 1; i >= 0; i-- ) {
         // Get the heuristic distance from the start node to this secondary goal
-        double sGoalHCost = this->calculateHCost(startingNode, viableGoals.at(i)->node);
+        // double sGoalHCost = this->calculateHCost(startingNode, viableGoals.at(i)->node);
+        double sGoalHCost = viableGoals.at(i)->f_cost - viableGoals.at(i)->g_cost;
 
         // If the primary goal looks to be closer: just pursue that
         if ( pGoalHCost <= sGoalHCost ) {
@@ -359,7 +360,7 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     return this->agent->getPrimaryGoal();
 }
 
-void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range) {
+void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range, int depth) {
     // Base Case: If the range is 0, exit
     if ( range == -1 ) return;
 
@@ -380,7 +381,7 @@ void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &via
             // Make a SearchNode object we can use to store the g-cost and sort later
             double g_cost = calculateGCost(this->agent->getState(), centerNode->getState());
             std::weak_ptr<SearchNode> w;
-            viableGoals.push_back(std::make_shared<SearchNode>(centerNode, g_cost, g_cost, w));
+            viableGoals.push_back(std::make_shared<SearchNode>(centerNode, g_cost, g_cost + depth, w));
         }
     }
 
@@ -390,19 +391,19 @@ void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &via
     // Recurse on the neighbors
     std::vector<int> right = {centerNode->getCoord()->at(0) + 1, centerNode->getCoord()->at(1)};
     if ( this->ss->isInGraph(&right) ) 
-        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(right), range - 1);
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(right), range - 1, depth + 1);
     
     std::vector<int> left = {centerNode->getCoord()->at(0) - 1, centerNode->getCoord()->at(1)};
     if ( this->ss->isInGraph(&left) ) 
-        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(left), range - 1);
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(left), range - 1, depth + 1);
     
-    std::vector<int> up = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) + 1};
+    std::vector<int> up = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) + 1, depth + 1};
     if ( this->ss->isInGraph(&up) ) 
-        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(up), range - 1);
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(up), range - 1, depth + 1);
     
     std::vector<int> down = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) - 1};
     if ( this->ss->isInGraph(&down) ) 
-        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(down), range - 1);
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(down), range - 1, depth + 1);
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
