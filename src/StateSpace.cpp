@@ -58,6 +58,10 @@ std::vector<std::shared_ptr<Node>> StateSpace::getAdjacencyList(std::shared_ptr<
     return adjacencies;
 }
 
+bool StateSpace::isInGraph(std::vector<int>* coord) {
+    return this->graph.find(getCoordString(coord)) != this->graph.end();
+}
+
 std::vector<double>* StateSpace::getStateBounds() {return &(this->state_bounds);}
 double StateSpace::getGCostScale() {return this->gCostScale;}
 

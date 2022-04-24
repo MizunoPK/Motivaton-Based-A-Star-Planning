@@ -28,6 +28,14 @@ void Agent::updateState(std::vector<double>* modifiers, std::vector<double>* sta
     }
 }
 
+bool Agent::isSecondaryGoal(std::shared_ptr<Node> node) {
+    auto it = find(this->secondaryGoals.begin(), this->secondaryGoals.end(), node);
+    if ( it != this->secondaryGoals.end() ) {
+        return true;
+    }
+    return false;
+}
+
 bool Agent::deleteSecondaryGoal(std::shared_ptr<Node> node) {
     auto it = find(this->secondaryGoals.begin(), this->secondaryGoals.end(), node);
     if ( it != this->secondaryGoals.end() ) {

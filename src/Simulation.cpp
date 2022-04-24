@@ -163,6 +163,12 @@ void Simulation::runSearch() {
 
     // Loop until we reach the goal
     while(true) {
+        // if we reached a secondary goal, remove the goal from the list of s-goals
+        bool reachedSGoal = this->agent->deleteSecondaryGoal(startingNode);
+        if ( reachedSGoal ) {
+            this->sGoalsReached++;
+        }
+
         TRACE << "Getting Anticipated Path from Starting Node " 
             << getCoordString(startingNode->getCoord()) << ENDL;
 
@@ -217,12 +223,6 @@ void Simulation::runSearch() {
             break;
         }
 
-        // if we reached a secondary goal, remove the goal from the list of s-goals
-        bool reachedSGoal = this->agent->deleteSecondaryGoal(startingNode);
-        if ( reachedSGoal ) {
-            this->sGoalsReached++;
-        }
-
         // Get the first node in the path
         // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
         std::shared_ptr<Node> nextNode = anticipatedPath.at(anticipatedPath.size() - 2);
@@ -262,40 +262,15 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 
     // Get useful info
-    std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
-    std::vector<double>* goalRanges = this->agent->getGoalRanges();
-    std::vector<double>* agentState = this->agent->getState();
-    std::vector<int>* startingNodeCoord = startingNode->getCoord();
+    // std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
+    // std::vector<double>* goalRanges = this->agent->getGoalRanges();
+    // std::vector<double>* agentState = this->agent->getState();
+    // std::vector<int>* startingNodeCoord = startingNode->getCoord();
 
     // Compile a list of secondary goals within vision range
     std::vector<std::shared_ptr<SearchNode>> viableGoals;
-    for ( int i=0; i < secondaryGoals->size(); i++ ) {
-        std::vector<int>* nodeCoord = secondaryGoals->at(i)->getCoord();
-        // Currently, the vision is checking all nodes in the circle around the starting node
-        // TODO Modify this to have a more limitted range of vision behind the agent
-        if ( abs(nodeCoord->at(0) - startingNodeCoord->at(0)) <= this->agent->getVision()
-            && abs(nodeCoord->at(1) - startingNodeCoord->at(1)) <= this->agent->getVision()
-            && !secondaryGoals->at(i)->getTraversed() ) {
-                // Figure out if this goal is worth it
-                // Check if the goal is within the agent's threshold range for secondary goals
-                bool isViable = true;
-                std::vector<double>* goalState = secondaryGoals->at(i)->getState();
-                for ( int j=0; j < goalRanges->size(); j++ ) {
-                    if ( abs(agentState->at(j) - goalState->at(j)) > goalRanges->at(j) ) {
-                        isViable = false;
-                        break;
-                    }
-                }
-
-                // If it is a viable secondary goal, add it to the list
-                if ( isViable ) {
-                    // Make a SearchNode object we can use to store the g-cost and sort later
-                    double g_cost = calculateGCost(agentState, goalState);
-                    std::weak_ptr<SearchNode> w;
-                    viableGoals.push_back(std::make_shared<SearchNode>(secondaryGoals->at(i), g_cost, g_cost, w));
-                }
-         }
-    }
+    std::unordered_set<std::shared_ptr<Node>> checkedNodes;
+    this->getSecondaryGoals(viableGoals, checkedNodes, startingNode, this->agent->getVision(), 0);
 
     // Sort goals by g_costs
     // This will sort from highest cost to lowest cost
@@ -324,7 +299,8 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     //      choose the secondary goal as the temporary goal
     for ( int i = viableGoals.size() - 1; i >= 0; i-- ) {
         // Get the heuristic distance from the start node to this secondary goal
-        double sGoalHCost = this->calculateHCost(startingNode, viableGoals.at(i)->node);
+        // double sGoalHCost = this->calculateHCost(startingNode, viableGoals.at(i)->node);
+        double sGoalHCost = viableGoals.at(i)->f_cost - viableGoals.at(i)->g_cost;
 
         // If the primary goal looks to be closer: just pursue that
         if ( pGoalHCost <= sGoalHCost ) {
@@ -384,6 +360,52 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     return this->agent->getPrimaryGoal();
 }
 
+void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range, int depth) {
+    // Base Case: If the range is 0, exit
+    if ( range == -1 ) return;
+
+    // If it's a secondary goal: check if it is a viable goal
+    if ( this->agent->isSecondaryGoal(centerNode) ) {
+        // Figure out if this goal is worth it
+        // Check if the goal is within the agent's threshold range for secondary goals
+        bool isViable = true;
+        for ( int j=0; j < centerNode->getState()->size(); j++ ) {
+            if ( abs(this->agent->getState()->at(j) - centerNode->getState()->at(j)) > this->agent->getGoalRanges()->at(j) ) {
+                isViable = false;
+                break;
+            }
+        }
+
+        // If it is a viable secondary goal, add it to the list
+        if ( isViable ) {
+            // Make a SearchNode object we can use to store the g-cost and sort later
+            double g_cost = calculateGCost(this->agent->getState(), centerNode->getState());
+            std::weak_ptr<SearchNode> w;
+            viableGoals.push_back(std::make_shared<SearchNode>(centerNode, g_cost, g_cost + depth, w));
+        }
+    }
+
+    // Signal we have checked this node
+    checkedNodes.insert(centerNode);
+
+    // Recurse on the neighbors
+    std::vector<int> right = {centerNode->getCoord()->at(0) + 1, centerNode->getCoord()->at(1)};
+    if ( this->ss->isInGraph(&right) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(right), range - 1, depth + 1);
+    
+    std::vector<int> left = {centerNode->getCoord()->at(0) - 1, centerNode->getCoord()->at(1)};
+    if ( this->ss->isInGraph(&left) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(left), range - 1, depth + 1);
+    
+    std::vector<int> up = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) + 1, depth + 1};
+    if ( this->ss->isInGraph(&up) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(up), range - 1, depth + 1);
+    
+    std::vector<int> down = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) - 1};
+    if ( this->ss->isInGraph(&down) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(down), range - 1, depth + 1);
+}
+
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
     FUNCTION_TRACE << "Simulation::runAstar called" << ENDL;
 
@@ -404,16 +426,16 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
         // If there's nothing in the open queue: exit the function
         // This means that there is no possible way to get to the goal
         if ( openQueue.size() == 0 ) {
-            DEEP_TRACE << "Open queue is empty... Searching is no longer possible. Exiting A*..." << ENDL;
+            A_STAR_TRACE << "Open queue is empty... Searching is no longer possible. Exiting A*..." << ENDL;
             return {};
         }
 
-        if ( LOGGING_LEVEL > 5 ) {
+        if ( LOGGING_LEVEL > 6 ) {
             std::string openString = "";
             for ( int i = openQueue.size() - 1; i >= 0; i-- ) {
                 openString = openString + "(" + getCoordString(openQueue.at(i)->node->getCoord()) + ") ";
             }
-            DEEP_TRACE << "Current OPEN queue: " << openString << ENDL;
+            A_STAR_TRACE << "Current OPEN queue: " << openString << ENDL;
         }
 
         std::shared_ptr<SearchNode> current = openQueue.back(); // current = node in OPEN with the lowest f_cost
@@ -421,41 +443,56 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
         closedMap[current->node] = current; // add current to CLOSED
         bool sortOPEN = false; // if we make any changes that need us to re-sort open, update this flag
 
-        DEEP_TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
+        A_STAR_TRACE << "Popped node " << getCoordString(current->node->getCoord()) << " from OPEN" << ENDL;
+        if ( LOGGING_LEVEL > 6 ) {
+            A_STAR_TRACE << "Path to this node:";
+            std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, current->node);
+            for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+            }
+            NEWL;
+        }
 
         // if current is the target node - the path has been found
         if ( current->node == goalNode ) {
-            DEEP_TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
+            A_STAR_TRACE << "PRIMARY GOAL FOUND... ENDING SEARCH" << ENDL;
             break;
         }
         
         // foreach neighbor of the current node
         std::vector<std::shared_ptr<Node>> neighbors = this->ss->getAdjacencyList(current->node);
+        if ( LOGGING_LEVEL > 6 ) {
+            A_STAR_TRACE << "Neighbors: ";
+            for ( int i=0; i < neighbors.size(); i++ ) {
+                std::cout << getCoordString(neighbors.at(i)->getCoord()) << " - ";
+            }
+            NEWL;
+        }
         for ( int i=0; i < neighbors.size(); i++ ) {
             std::shared_ptr<Node> neighbor = neighbors.at(i);
-            DEEP_TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
+            A_STAR_TRACE << "Checking Neighbor: " << getCoordString(neighbor->getCoord()) << ENDL;
             // if neighbor is in CLOSED
             if ( closedMap.find(neighbor) != closedMap.end() ) {
                 // skip to the next neighbor
-                DEEP_TRACE << "This neighbor is already in CLOSED... Skipping..." << ENDL;
+                A_STAR_TRACE << "This neighbor is already in CLOSED... Skipping..." << ENDL;
                 continue;
             }
             // if neighbor has already been traversed
             if ( neighbor->getTraversed() ) {
-                DEEP_TRACE << "Neighbor has already been traversed to... Skipping..." << ENDL;
+                A_STAR_TRACE << "Neighbor has already been traversed to... Skipping..." << ENDL;
                 continue;
             }
 
             // Calculate the cost of the path to this neighbor
             // g_cost = distance from starting node
             double g_cost = current->g_cost + calculateGCost(agent->getState(), neighbor->getState());
-            DEEP_TRACE << "G Cost: " << g_cost << ENDL;
+            A_STAR_TRACE << "G Cost: " << g_cost << ENDL;
             // h_cost = heuristic calculated distance from end node - manhatten distance
             double h_cost = this->calculateHCost(neighbor, goalNode);
-            DEEP_TRACE << "H Cost: " << h_cost << ENDL;
+            A_STAR_TRACE << "H Cost: " << h_cost << ENDL;
             // f_cost = g_cost + h_cost ... The total cost of the node we use to determine if we want to move there
             double f_cost = h_cost + g_cost;
-            DEEP_TRACE << "F Cost: " << f_cost << ENDL;
+            A_STAR_TRACE << "F Cost: " << f_cost << ENDL;
 
             // Determine the location of the neighbor in OPEN
             int neighbor_i = -1; // -1 index indiciates the neighbor is not in OPEN
@@ -470,15 +507,71 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
             if ( neighbor_i == -1 ) {
                 openQueue.push_back(std::make_shared<SearchNode>(neighbor, g_cost, f_cost, current));
                 sortOPEN = true;
-                DEEP_TRACE << "New valid neighbor found... Adding to OPEN" << ENDL;
+                if ( LOGGING_LEVEL > 6 ) {
+                    A_STAR_TRACE << "New valid neighbor found... Adding to OPEN. Path to this neighbor:";
+                    std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, current->node);
+                    for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                        std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+                    }
+                    NEWL;
+                }
             }
             // it is in OPEN and the new path to neighbor is shorter - update its f_cost and parent node
             else if (neighbor_i != -1 && f_cost < openQueue.at(neighbor_i)->f_cost) {
-                openQueue.at(i)->f_cost = f_cost;
+                if ( LOGGING_LEVEL > 6 ) {
+                    for ( int kk = 0; kk < openQueue.size(); kk++ ) {
+                        if ( openQueue.at(kk)->node == agent->getPrimaryGoal() ) {
+                            A_STAR_TRACE << "Path to primary goal:";
+                            auto temp = openQueue.at(kk)->prevNode.lock();
+                            std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, temp->node);
+                            for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                                std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+                            }
+                            NEWL;
+                            break;
+                        }
+                    }
+                }
+                if ( LOGGING_LEVEL > 6 ) {
+                    A_STAR_TRACE << "Current path to this node:";
+                    auto temp = openQueue.at(neighbor_i)->prevNode.lock();
+                    std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, temp->node);
+                    for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                        std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+                    }
+                    NEWL;
+                }
+
+                openQueue.at(neighbor_i)->f_cost = f_cost;
                 std::weak_ptr<SearchNode> prevNode = current;
-                openQueue.at(i)->prevNode = prevNode;
+                openQueue.at(neighbor_i)->prevNode = prevNode;
                 sortOPEN = true;
-                DEEP_TRACE << "Neighbor already is in OPEN, but we have found a better path to it. Updating the entry in OPEN." << ENDL;
+                A_STAR_TRACE << "Neighbor already is in OPEN, but we have found a better path to it. Updating the entry in OPEN." << ENDL;
+                
+                if ( LOGGING_LEVEL > 6 ) {
+                    A_STAR_TRACE << "New path to this node:";
+                    auto temp = openQueue.at(neighbor_i)->prevNode.lock();
+                    std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, temp->node);
+                    for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                        std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+                    }
+                    NEWL;
+                }
+                if ( LOGGING_LEVEL > 6 ) {
+                    for ( int kk = 0; kk < openQueue.size(); kk++ ) {
+                        if ( openQueue.at(kk)->node == agent->getPrimaryGoal() ) {
+                            A_STAR_TRACE << "Path to primary goal:";
+                            auto temp = openQueue.at(kk)->prevNode.lock();
+                            std::vector<std::shared_ptr<Node>> pathToNeighbor = derivePathFromClosed(&closedMap, startingNode, temp->node);
+                            for ( int k=pathToNeighbor.size() - 1; k >= 0; k-- ) {
+                                std::cout << getCoordString(pathToNeighbor.at(k)->getCoord()) << " -> ";
+                            }
+                            NEWL;
+                            break;
+                        }
+                    }
+                }
+                
             }
         }
         

@@ -1,5 +1,5 @@
-TOTAL TIME ELASPED: 0.0191809
-MAX A* TIME ELASPED: 0.00151817
+TOTAL TIME ELASPED: 0.0182734
+MAX A* TIME ELASPED: 0.00281731
 # OF SECONDARY GOALS REACHED: 1
 LENGTH OF FINAL PATH: 5
 FINAL STATE OF AGENT: [10,0]
@@ -21,7 +21,7 @@ NODE 2:
 Coordinate: (0,2)
 Agent State After Reaching This Node: [10,0]
 Path the Agent Anticipates taking to the Primary Goal: (0,2) -> (1,2) -> (2,2)
-Agent is pursuing secondary goal: (0,2)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
 
 NODE 3:
 Coordinate: (1,2)
