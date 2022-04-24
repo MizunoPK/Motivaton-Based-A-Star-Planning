@@ -48,5 +48,5 @@ big-graph:
 	python3 ./pythonScripts/VisualizeOutputs.py outputs/big-graph-output.txt inputs/big-graph/InputGraph.txt inputs/big-graph/InputAgent.txt
 
 present:
-	# ./dynamic-pathing -d 7 -g inputs/presentation/InputGraph.txt -a inputs/presentation/InputAgent.txt -o outputs/present-output.txt > outputs/present.log
-	python3 ./pythonScripts/VisualizeOutputs.py outputs/big-graph-output-pres.txt inputs/big-graph-present/InputGraph.txt inputs/big-graph-present/InputAgent.txt
+	./dynamic-pathing -d 7 -g inputs/big-graph-present/InputGraph.txt -a inputs/big-graph-present/InputAgent.txt -o outputs/big-graph-output-pres-S2.txt > outputs/present.log
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/big-graph-output-pres-S2.txt inputs/big-graph-present/InputGraph.txt inputs/big-graph-present/InputAgent.txt
