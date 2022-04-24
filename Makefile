@@ -46,3 +46,5 @@ big-graph:
 	python3 ./pythonScripts/GenerateInput.py ./inputs/input-params/input-parameters.txt
 	./dynamic-pathing -d 5 -g inputs/big-graph/InputGraph.txt -a inputs/big-graph/InputAgent.txt -o outputs/big-graph-output.txt > outputs/big-graph.log
 	python3 ./pythonScripts/VisualizeOutputs.py outputs/big-graph-output.txt inputs/big-graph/InputGraph.txt inputs/big-graph/InputAgent.txt
+presentation:
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/presentation-output.txt inputs/presentation/InputGraph.txt inputs/presentation/InputAgent.txt
