@@ -48,6 +48,10 @@ public:
     // Output: vector - The associated adjacencyList 
     std::vector<std::shared_ptr<Node>> getAdjacencyList(std::shared_ptr<Node> node);
 
+    // * Function: isInGraph
+    // Description: Checks if the given coordinate is in the graph. Returns true if yes, false if not
+    bool isInGraph(std::vector<int>* coord);
+
     // Getters
     std::vector<double>* getStateBounds();
     double getGCostScale();

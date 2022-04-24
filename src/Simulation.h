@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <unordered_set>
 #include "StateSpace.h"
 #include "Node.h"
 #include "Agent.h"
@@ -80,6 +81,15 @@ private:
     //      &anticiptedPath - A reference to the vector we'll be storing the anticipatedPath. This allows us to functionally return two things
     // Output: goalNode - Return the secondary goal that was chosen, or return the p-goal if no s-goal was chosen
     std::shared_ptr<Node> getPath(std::shared_ptr<Node> startingNode, std::vector<std::shared_ptr<Node>> &anticipatedPath);
+
+    // * getSecondaryGoals
+    // Description: Compiles a list of viable secondary goals within vision range. 
+    // Inputs
+    //      &viableGoals - A vector of viable secondary goal nodes. Use the SearchNode struct so that we can sort them by g_costs
+    //      &checkedNodes - a hash set of already checked nodes
+    //      centerNode - The node at the center of the vision radius for this call
+    //      range - the vision range of the center node, this decrements with each call to getSecondaryGoals
+    void getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range);
 
     // * Function: runAstar
     // Description: Runs one interation of A* for the given start node

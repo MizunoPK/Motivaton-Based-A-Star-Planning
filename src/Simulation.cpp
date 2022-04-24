@@ -163,6 +163,12 @@ void Simulation::runSearch() {
 
     // Loop until we reach the goal
     while(true) {
+        // if we reached a secondary goal, remove the goal from the list of s-goals
+        bool reachedSGoal = this->agent->deleteSecondaryGoal(startingNode);
+        if ( reachedSGoal ) {
+            this->sGoalsReached++;
+        }
+
         TRACE << "Getting Anticipated Path from Starting Node " 
             << getCoordString(startingNode->getCoord()) << ENDL;
 
@@ -217,12 +223,6 @@ void Simulation::runSearch() {
             break;
         }
 
-        // if we reached a secondary goal, remove the goal from the list of s-goals
-        bool reachedSGoal = this->agent->deleteSecondaryGoal(startingNode);
-        if ( reachedSGoal ) {
-            this->sGoalsReached++;
-        }
-
         // Get the first node in the path
         // Note: this will be the node second from the end~ because anticipated path is returned backwards and including the startNode
         std::shared_ptr<Node> nextNode = anticipatedPath.at(anticipatedPath.size() - 2);
@@ -262,40 +262,15 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 
     // Get useful info
-    std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
-    std::vector<double>* goalRanges = this->agent->getGoalRanges();
-    std::vector<double>* agentState = this->agent->getState();
-    std::vector<int>* startingNodeCoord = startingNode->getCoord();
+    // std::vector<std::shared_ptr<Node>>* secondaryGoals = this->agent->getSecondaryGoals();
+    // std::vector<double>* goalRanges = this->agent->getGoalRanges();
+    // std::vector<double>* agentState = this->agent->getState();
+    // std::vector<int>* startingNodeCoord = startingNode->getCoord();
 
     // Compile a list of secondary goals within vision range
     std::vector<std::shared_ptr<SearchNode>> viableGoals;
-    for ( int i=0; i < secondaryGoals->size(); i++ ) {
-        std::vector<int>* nodeCoord = secondaryGoals->at(i)->getCoord();
-        // Currently, the vision is checking all nodes in the circle around the starting node
-        // TODO Modify this to have a more limitted range of vision behind the agent
-        if ( abs(nodeCoord->at(0) - startingNodeCoord->at(0)) <= this->agent->getVision()
-            && abs(nodeCoord->at(1) - startingNodeCoord->at(1)) <= this->agent->getVision()
-            && !secondaryGoals->at(i)->getTraversed() ) {
-                // Figure out if this goal is worth it
-                // Check if the goal is within the agent's threshold range for secondary goals
-                bool isViable = true;
-                std::vector<double>* goalState = secondaryGoals->at(i)->getState();
-                for ( int j=0; j < goalRanges->size(); j++ ) {
-                    if ( abs(agentState->at(j) - goalState->at(j)) > goalRanges->at(j) ) {
-                        isViable = false;
-                        break;
-                    }
-                }
-
-                // If it is a viable secondary goal, add it to the list
-                if ( isViable ) {
-                    // Make a SearchNode object we can use to store the g-cost and sort later
-                    double g_cost = calculateGCost(agentState, goalState);
-                    std::weak_ptr<SearchNode> w;
-                    viableGoals.push_back(std::make_shared<SearchNode>(secondaryGoals->at(i), g_cost, g_cost, w));
-                }
-         }
-    }
+    std::unordered_set<std::shared_ptr<Node>> checkedNodes;
+    this->getSecondaryGoals(viableGoals, checkedNodes, startingNode, this->agent->getVision());
 
     // Sort goals by g_costs
     // This will sort from highest cost to lowest cost
@@ -382,6 +357,52 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     anticipatedPath = runAstar(startingNode, this->agent->getPrimaryGoal());
     endAStarClock(start);
     return this->agent->getPrimaryGoal();
+}
+
+void Simulation::getSecondaryGoals(std::vector<std::shared_ptr<SearchNode>> &viableGoals, std::unordered_set<std::shared_ptr<Node>> &checkedNodes, std::shared_ptr<Node> centerNode, int range) {
+    // Base Case: If the range is 0, exit
+    if ( range == -1 ) return;
+
+    // If it's a secondary goal: check if it is a viable goal
+    if ( this->agent->isSecondaryGoal(centerNode) ) {
+        // Figure out if this goal is worth it
+        // Check if the goal is within the agent's threshold range for secondary goals
+        bool isViable = true;
+        for ( int j=0; j < centerNode->getState()->size(); j++ ) {
+            if ( abs(this->agent->getState()->at(j) - centerNode->getState()->at(j)) > this->agent->getGoalRanges()->at(j) ) {
+                isViable = false;
+                break;
+            }
+        }
+
+        // If it is a viable secondary goal, add it to the list
+        if ( isViable ) {
+            // Make a SearchNode object we can use to store the g-cost and sort later
+            double g_cost = calculateGCost(this->agent->getState(), centerNode->getState());
+            std::weak_ptr<SearchNode> w;
+            viableGoals.push_back(std::make_shared<SearchNode>(centerNode, g_cost, g_cost, w));
+        }
+    }
+
+    // Signal we have checked this node
+    checkedNodes.insert(centerNode);
+
+    // Recurse on the neighbors
+    std::vector<int> right = {centerNode->getCoord()->at(0) + 1, centerNode->getCoord()->at(1)};
+    if ( this->ss->isInGraph(&right) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(right), range - 1);
+    
+    std::vector<int> left = {centerNode->getCoord()->at(0) - 1, centerNode->getCoord()->at(1)};
+    if ( this->ss->isInGraph(&left) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(left), range - 1);
+    
+    std::vector<int> up = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) + 1};
+    if ( this->ss->isInGraph(&up) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(up), range - 1);
+    
+    std::vector<int> down = {centerNode->getCoord()->at(0), centerNode->getCoord()->at(1) - 1};
+    if ( this->ss->isInGraph(&down) ) 
+        getSecondaryGoals(viableGoals, checkedNodes, this->ss->getNode(down), range - 1);
 }
 
 std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> startingNode, std::shared_ptr<Node> goalNode) {
