@@ -55,6 +55,10 @@ Set the `-p` flag in the `./dynamic-pathing` command line arguments to generate 
 See the `./outputs` folder for example output files that were generated for their corresponding input files from the `./inputs` folder.
 
 ### Example Planner Runs
+Here is an example run of the planner:<br>
+*Note: the `make 7x7` target mentioned below is a shortcut to running this example command*<br>
+`./dynamic-pathing -p -g inputs/7x7/InputGraph.txt -a inputs/7x7/InputAgent.txt -o outputs/7x7-readable-output.txt`
+
 We have also provided Makefile targets to quickly run the our planning algorithm with example inputs. *After* compiling the code, you can run the following make commands to quickly test the planner.
 - `make 3x3`
    - This will run the planner on the inputs in the `./inputs/3x3` folder. This is a 3-by-3 graph where the agent has 2 possible secondary goals. This run will create an output file in readable format at `./outputs/3x3-readable-output.txt`
