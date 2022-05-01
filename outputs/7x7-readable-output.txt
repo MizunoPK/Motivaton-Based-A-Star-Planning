@@ -1,0 +1,96 @@
+TOTAL TIME ELASPED: 0.0749305
+MAX A* TIME ELASPED: 0.00711824
+# OF SECONDARY GOALS REACHED: 1
+LENGTH OF FINAL PATH: 15
+FINAL STATE OF AGENT: [9.742,10,10]
+
+FINAL PATH:
+NODE 0:
+Coordinate: (0,0)
+Agent State After Reaching This Node: [4.115,6.468,8.159]
+Path the Agent Anticipates taking to the Primary Goal: (0,0) -> (1,0) -> (1,1) -> (1,2) -> (1,3) -> (1,4) -> (2,4) -> (3,4) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 1:
+Coordinate: (1,0)
+Agent State After Reaching This Node: [4.298,6.456,8.157]
+Path the Agent Anticipates taking to the Primary Goal: (1,0) -> (1,1) -> (1,2) -> (1,3) -> (1,4) -> (2,4) -> (3,4) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 2:
+Coordinate: (1,1)
+Agent State After Reaching This Node: [4.474,6.579,8.257]
+Path the Agent Anticipates taking to the Primary Goal: (1,1) -> (1,2) -> (1,3) -> (1,4) -> (2,4) -> (3,4) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 3:
+Coordinate: (1,2)
+Agent State After Reaching This Node: [4.607,6.855,8.497]
+Path the Agent Anticipates taking to the Primary Goal: (1,2) -> (1,3) -> (1,4) -> (2,4) -> (3,4) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 4:
+Coordinate: (1,3)
+Agent State After Reaching This Node: [4.719,7.209,8.723]
+Path the Agent Anticipates taking to the Primary Goal: (1,3) -> (1,4) -> (1,5) -> (2,5) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 5:
+Coordinate: (1,4)
+Agent State After Reaching This Node: [4.814,7.666,9.081]
+Path the Agent Anticipates taking to the Primary Goal: (1,4) -> (1,5) -> (2,5) -> (3,5) -> (4,5) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 6:
+Coordinate: (1,5)
+Agent State After Reaching This Node: [4.985,8.329,9.496]
+Path the Agent Anticipates taking to the Primary Goal: (1,5) -> (2,5) -> (3,5) -> (3,6) -> (4,6) -> (5,6) -> (6,6) -> (7,6) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 7:
+Coordinate: (2,5)
+Agent State After Reaching This Node: [5.313,9.047,9.935]
+Path the Agent Anticipates taking to the Primary Goal: (2,5) -> (3,5) -> (3,6) -> (4,6) -> (4,7) -> (5,7) -> (6,7) -> (7,7)
+Agent is pursuing secondary goal: (4,7)
+
+NODE 8:
+Coordinate: (3,5)
+Agent State After Reaching This Node: [5.7,9.723,10]
+Path the Agent Anticipates taking to the Primary Goal: (3,5) -> (3,6) -> (4,6) -> (4,7) -> (5,7) -> (6,7) -> (7,7)
+Agent is pursuing secondary goal: (4,7)
+
+NODE 9:
+Coordinate: (3,6)
+Agent State After Reaching This Node: [6.147,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (3,6) -> (3,7) -> (4,7) -> (5,7) -> (6,7) -> (7,7)
+Agent is pursuing secondary goal: (4,7)
+
+NODE 10:
+Coordinate: (3,7)
+Agent State After Reaching This Node: [6.623,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (3,7) -> (4,7) -> (5,7) -> (6,7) -> (7,7)
+Agent is pursuing secondary goal: (4,7)
+
+NODE 11:
+Coordinate: (4,7)
+Agent State After Reaching This Node: [7.173,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (4,7) -> (5,7) -> (6,7) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 12:
+Coordinate: (5,7)
+Agent State After Reaching This Node: [7.873,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (5,7) -> (6,7) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 13:
+Coordinate: (6,7)
+Agent State After Reaching This Node: [8.728,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (6,7) -> (7,7)
+Agent is not pursuing any secondary goal. It is heading straight to the primary goal.
+
+NODE 14:
+Coordinate: (7,7)
+Agent State After Reaching This Node: [9.742,10,10]
+Path the Agent Anticipates taking to the Primary Goal: (7,7)
+Agent has reached the primary goal.

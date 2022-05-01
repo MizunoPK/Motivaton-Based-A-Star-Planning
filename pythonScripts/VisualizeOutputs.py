@@ -104,6 +104,8 @@ fig.suptitle("Maze Navigation Visualization", fontsize=20)
 # Setting x-axis label and y-axis label
 plt.xlabel("Horizontial Motion")
 plt.ylabel("Vertical Motion")
+figManager = plt.get_current_fig_manager()
+figManager.full_screen_toggle()
 # Draw the grid
 for x in range(graphSize + 1):
     ax.axhline(x, lw=2, color='k', zorder=5)
@@ -223,17 +225,20 @@ while True:
         currPos = path[i][1] ####
     i += 1
     # Drawing updated values
-    fig.canvas.draw()
-
-    fig.canvas.flush_events()
-
-    time.sleep(0.5)
     enter =  input("Smash Enter for New Step...;)")
+    # figManager = plt.get_current_fig_manager()
+    # figManager.full_screen_toggle()
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+    enter =  input("Smash Enter for New Step...;)")
+    time.sleep(0.5)
     for x in pathPatches:
         x.remove()
     for x in currPatches:
         x.remove()
     # Drawing updated values
+    # figManager = plt.get_current_fig_manager()
+    # figManager.full_screen_toggle()
     fig.canvas.draw()
     fig.canvas.flush_events()
     # time.sleep(.5)
