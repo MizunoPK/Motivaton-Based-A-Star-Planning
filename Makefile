@@ -34,8 +34,8 @@ clean:
 	./dynamic-pathing -g inputs/3x3/3x3-graph.txt -a inputs/3x3/3x3-agent.txt -o outputs/3x3-output.txt
 	python3 ./pythonScripts/VisualizeOutputs.py outputs/3x3-output.txt inputs/3x3/3x3-graph.txt inputs/3x3/3x3-agent.txt
 
-7x7:
-	./dynamic-pathing -p -g inputs/7x7/InputGraph.txt -a inputs/7x7/InputAgent.txt -o outputs/7x7-readable-output.txt
-7x7-visualize:
-	./dynamic-pathing -g inputs/7x7/InputGraph.txt -a inputs/7x7/InputAgent.txt -o outputs/7x7-output.txt
-	python3 ./pythonScripts/VisualizeOutputs.py outputs/7x7-output.txt inputs/7x7/InputGraph.txt inputs/7x7/InputAgent.txt
+8x8:
+	./dynamic-pathing -p -g inputs/8x8/InputGraph.txt -a inputs/8x8/InputAgent.txt -o outputs/8x8-readable-output.txt
+8x8-visualize:
+	./dynamic-pathing -g inputs/8x8/InputGraph.txt -a inputs/8x8/InputAgent.txt -o outputs/8x8-output.txt
+	python3 ./pythonScripts/VisualizeOutputs.py outputs/8x8-output.txt inputs/8x8/InputGraph.txt inputs/8x8/InputAgent.txt

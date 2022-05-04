@@ -56,18 +56,18 @@ See the `./outputs` folder for example output files that were generated for thei
 
 ### Example Planner Runs
 Here is an example run of the planner:<br>
-*Note: the `make 7x7` target mentioned below is a shortcut to running this example command*<br>
-`./dynamic-pathing -p -g inputs/7x7/InputGraph.txt -a inputs/7x7/InputAgent.txt -o outputs/7x7-readable-output.txt`
+*Note: the `make 8x8` target mentioned below is a shortcut to running this example command*<br>
+`./dynamic-pathing -p -g inputs/8x8/InputGraph.txt -a inputs/8x8/InputAgent.txt -o outputs/8x8-readable-output.txt`
 
 We have also provided Makefile targets to quickly run the our planning algorithm with example inputs. *After* compiling the code, you can run the following make commands to quickly test the planner.
 - `make 3x3`
    - This will run the planner on the inputs in the `./inputs/3x3` folder. This is a 3-by-3 graph where the agent has 2 possible secondary goals. This run will create an output file in readable format at `./outputs/3x3-readable-output.txt`
 - `make 3x3-visualization`
    - This will run the planner on the same 3x3 input as the previous command, except it creates a machine-readable output file and automatically launches the visualization script using that generated output file.
-- `make 7x7`
-   - This will run the planner on the inputs in the `./inputs/7x7` folder. These inputs are the ones used to generate the example we show in our presentation and report. It is a 7-by-7 graph with 2 secondary goals. This run will create an output file in readable format at `./outputs/7x7-readable-output.txt`
-- `make 7x7-visualization`
-   - Just like with the 3x3-visualization target, this target will make a machine-readable output for the 7x7 inputs and automatically send it to the visualization script.
+- `make 8x8`
+   - This will run the planner on the inputs in the `./inputs/8x8` folder. These inputs are the ones used to generate the example we show in our presentation and report. It is a 8-by-8 graph with 2 secondary goals. This run will create an output file in readable format at `./outputs/8x8-readable-output.txt`
+- `make 8x8-visualization`
+   - Just like with the 3x3-visualization target, this target will make a machine-readable output for the 8x8 inputs and automatically send it to the visualization script.
 
 # Using the Python Utility Scripts
 ## Visualization Script
@@ -79,7 +79,7 @@ This script requires three command line arguments (in this order):
 3. `<path to the agent file used by the A* algorithm>`
 
 Here is an example of how to run the visualizer:<br>
-`python3 ./pythonScripts/VisualizeOutputs.py outputs/7x7-output.txt inputs/7x7/InputGraph.txt inputs/7x7/InputAgent.txt`
+`python3 ./pythonScripts/VisualizeOutputs.py outputs/8x8-output.txt inputs/8x8/InputGraph.txt inputs/8x8/InputAgent.txt`
 
 Some important notes:
 - This script uses several libraries that you may need to install, such as `matplotlib`, `pandas`, and `numpy`
