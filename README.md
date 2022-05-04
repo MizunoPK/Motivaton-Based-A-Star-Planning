@@ -1,6 +1,6 @@
 # A* Path Planner for Dynamic Agents with Internal Motivations
 ## Project Description:
-This repository contains code developed for the final project in the Robot Planning & Manipulation course at Colorado School of Mines. See our final report for a detailed overview of this project.
+This repository contains code developed for the final project in the Robot Planning & Manipulation course at Colorado School of Mines. This was developed by Matthew Desaulniers, Kai Mizuno, and Emily Muly. Our final report is contained in this repository at `report.pdf`, which contains a more detailed over of this project.
 
 Many traditional path planners are used to find the shortest trajectory from some beginning state to goal state. This results in a static agent that moves through an environment a certain way every time. This behavior is not sufficient in modeling the behavior of human-like agents with internal motivations. In this project, we have developed an augmented version of A* path planning that allows an agent to determine a path to its goal that best aligns with its internal motivations. The agent has internal states that can be impacted by its environment, follows paths that align with its current internal state, and attempts to accomplish secondary goals that also align with its internal state.
 
