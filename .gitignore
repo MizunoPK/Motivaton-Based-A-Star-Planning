@@ -2,3 +2,4 @@ dynamic-pathing
 *.o
 *.log
 .vscode
+*.pptx

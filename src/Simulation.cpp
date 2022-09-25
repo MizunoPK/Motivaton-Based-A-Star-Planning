@@ -193,7 +193,6 @@ void Simulation::runSearch() {
         }
 
         // If the agent cannot change and there are no secondary goals, or we have a vision value of 0... Then don't bother running A* again
-        // TODO For the game application, change this to only care about vision
         if ( !this->agentCanChange && 
             (this->agent->getSecondaryGoals()->size() == 0 || this->agent->getVision() == 0 )) {
             INFO << "No need to run A* again... Returning this as the final path" << ENDL;
@@ -290,7 +289,6 @@ std::shared_ptr<Node> Simulation::getPath(std::shared_ptr<Node> startingNode, st
     }
 
     // Get the heuristic distance from the start node to primary goal
-    // TODO Consider whether to keep using h cost here or compare actual distances
     double pGoalHCost = this->calculateHCost(startingNode, this->agent->getPrimaryGoal());
 
     // Loop through the potential secondary goals, from most viable to least viable
@@ -588,7 +586,7 @@ std::vector<std::shared_ptr<Node>> Simulation::runAstar(std::shared_ptr<Node> st
 
 void Simulation::quickSort(std::vector<std::shared_ptr<SearchNode>>* vector, int low, int high) {
     FUNCTION_TRACE << "Simulation::quicksort called" << ENDL;
-    // TODO: Check for ties on f_costs... If there are ties, then sort based on the g cost... If there are still ties on g_cost, then sort based on the prioritized agent state
+    // Check for ties on f_costs... If there are ties, then sort based on the g cost... If there are still ties on g_cost, then sort based on the prioritized agent state (todo)
 
     if ( low < high ) {
       /* p is partitioning index, vector[p] is now
